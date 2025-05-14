@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 import {
   PRESET_A,
@@ -6,16 +8,25 @@ import {
   PRESET_C,
   PRESET_D,
 } from '@/features/constants/koeiroParam'
-import { AIVoice } from '@/features/constants/settings'
+import {
+  AIVoice,
+  OpenAITTSVoice,
+  OpenAITTSModel,
+} from '@/features/constants/settings'
+import { getOpenAITTSModels } from '@/features/constants/aiModels'
 import { testVoice } from '@/features/messages/speakCharacter'
 import settingsStore from '@/features/stores/settings'
 import { Link } from '../link'
 import { TextButton } from '../textButton'
 import speakers from '../speakers.json'
+// import speakers_aivis from '../speakers_aivis.json'
 
 const Voice = () => {
   const koeiromapKey = settingsStore((s) => s.koeiromapKey)
   const elevenlabsApiKey = settingsStore((s) => s.elevenlabsApiKey)
+
+  const realtimeAPIMode = settingsStore((s) => s.realtimeAPIMode)
+  const audioMode = settingsStore((s) => s.audioMode)
 
   const selectVoice = settingsStore((s) => s.selectVoice)
   const koeiroParam = settingsStore((s) => s.koeiroParam)
@@ -24,6 +35,12 @@ const Voice = () => {
   const voicevoxSpeed = settingsStore((s) => s.voicevoxSpeed)
   const voicevoxPitch = settingsStore((s) => s.voicevoxPitch)
   const voicevoxIntonation = settingsStore((s) => s.voicevoxIntonation)
+  const voicevoxServerUrl = settingsStore((s) => s.voicevoxServerUrl)
+  const aivisSpeechSpeaker = settingsStore((s) => s.aivisSpeechSpeaker)
+  const aivisSpeechSpeed = settingsStore((s) => s.aivisSpeechSpeed)
+  const aivisSpeechPitch = settingsStore((s) => s.aivisSpeechPitch)
+  const aivisSpeechIntonation = settingsStore((s) => s.aivisSpeechIntonation)
+  const aivisSpeechServerUrl = settingsStore((s) => s.aivisSpeechServerUrl)
   const stylebertvits2ServerUrl = settingsStore(
     (s) => s.stylebertvits2ServerUrl
   )
@@ -37,35 +54,141 @@ const Voice = () => {
   const gsviTtsBatchSize = settingsStore((s) => s.gsviTtsBatchSize)
   const gsviTtsSpeechRate = settingsStore((s) => s.gsviTtsSpeechRate)
   const elevenlabsVoiceId = settingsStore((s) => s.elevenlabsVoiceId)
+  const openaiAPIKey = settingsStore((s) => s.openaiKey)
+  const openaiTTSVoice = settingsStore((s) => s.openaiTTSVoice)
+  const openaiTTSModel = settingsStore((s) => s.openaiTTSModel)
+  const openaiTTSSpeed = settingsStore((s) => s.openaiTTSSpeed)
+  const azureTTSKey = settingsStore((s) => s.azureTTSKey)
+  const azureTTSEndpoint = settingsStore((s) => s.azureTTSEndpoint)
+  const nijivoiceApiKey = settingsStore((s) => s.nijivoiceApiKey)
+  const nijivoiceActorId = settingsStore((s) => s.nijivoiceActorId)
+  const nijivoiceSpeed = settingsStore((s) => s.nijivoiceSpeed)
+  const nijivoiceEmotionalLevel = settingsStore(
+    (s) => s.nijivoiceEmotionalLevel
+  )
+  const nijivoiceSoundDuration = settingsStore((s) => s.nijivoiceSoundDuration)
 
   const { t } = useTranslation()
+  const [nijivoiceSpeakers, setNijivoiceSpeakers] = useState<Array<any>>([])
+  const [prevNijivoiceActorId, setPrevNijivoiceActorId] = useState<string>('')
+  const [speakers_aivis, setSpeakers_aivis] = useState<Array<any>>([])
+  const [customVoiceText, setCustomVoiceText] = useState<string>('')
+
+  // にじボイスの話者一覧を取得する関数
+  const fetchNijivoiceSpeakers = async () => {
+    try {
+      const response = await fetch(
+        `/api/get-nijivoice-actors?apiKey=${nijivoiceApiKey}`
+      )
+      const data = await response.json()
+      if (data.voiceActors) {
+        const sortedActors = data.voiceActors.sort(
+          (a: any, b: any) => a.id - b.id
+        )
+        setNijivoiceSpeakers(sortedActors)
+      }
+    } catch (error) {
+      console.error('Failed to fetch nijivoice speakers:', error)
+    }
+  }
+
+  // AIVISの話者一覧を取得する関数
+  const fetchAivisSpeakers = async () => {
+    try {
+      const response = await fetch('/speakers_aivis.json')
+      const data = await response.json()
+      setSpeakers_aivis(data)
+    } catch (error) {
+      console.error('Failed to fetch AIVIS speakers:', error)
+    }
+  }
+
+  // コンポーネントマウント時またはにじボイス選択時に話者一覧を取得
+  useEffect(() => {
+    if (selectVoice === 'nijivoice') {
+      fetchNijivoiceSpeakers()
+    }
+  }, [selectVoice, nijivoiceApiKey])
+
+  // コンポーネントマウント時またはAIVIS選択時に話者一覧を取得
+  useEffect(() => {
+    if (selectVoice === 'aivis_speech') {
+      fetchAivisSpeakers()
+    }
+  }, [selectVoice])
+
+  // nijivoiceActorIdが変更された時にrecommendedVoiceSpeedを設定する処理を追加
+  useEffect(() => {
+    if (
+      selectVoice === 'nijivoice' &&
+      nijivoiceActorId &&
+      nijivoiceActorId !== prevNijivoiceActorId
+    ) {
+      // 現在選択されていキャラクターを探す
+      const selectedActor = nijivoiceSpeakers.find(
+        (actor) => actor.id === nijivoiceActorId
+      )
+
+      // キャラクターが見つかり、recommendedVoiceSpeedが設定されている場合
+      if (selectedActor?.recommendedVoiceSpeed) {
+        settingsStore.setState({
+          nijivoiceSpeed: selectedActor.recommendedVoiceSpeed,
+        })
+      }
+
+      // 前回の選択を更新
+      setPrevNijivoiceActorId(nijivoiceActorId)
+    }
+  }, [nijivoiceActorId, nijivoiceSpeakers, prevNijivoiceActorId, selectVoice])
+
+  // 追加: realtimeAPIMode または audioMode が true の場合にメッセージを表示
+  if (realtimeAPIMode || audioMode) {
+    return (
+      <div className="text-center text-xl whitespace-pre-line">
+        {t('CannotUseVoice')}
+      </div>
+    )
+  }
 
   return (
-    <div className="my-40">
-      <div className="my-16 typography-20 font-bold">
+    <div>
+      <div className="flex items-center mb-6">
+        <Image
+          src="/images/setting-icons/voice-settings.svg"
+          alt="Voice Settings"
+          width={24}
+          height={24}
+          className="mr-2"
+        />
+        <h2 className="text-2xl font-bold">{t('VoiceSettings')}</h2>
+      </div>
+      <div className="mb-4 text-xl font-bold">
         {t('SyntheticVoiceEngineChoice')}
       </div>
       <div>{t('VoiceEngineInstruction')}</div>
-      <div className="my-8">
+      <div className="my-2">
         <select
           value={selectVoice}
           onChange={(e) =>
             settingsStore.setState({ selectVoice: e.target.value as AIVoice })
           }
-          className="px-16 py-8 bg-surface1 hover:bg-surface1-hover rounded-8"
+          className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
         >
           <option value="voicevox">{t('UsingVoiceVox')}</option>
           <option value="koeiromap">{t('UsingKoeiromap')}</option>
           <option value="google">{t('UsingGoogleTTS')}</option>
           <option value="stylebertvits2">{t('UsingStyleBertVITS2')}</option>
+          <option value="aivis_speech">{t('UsingAivisSpeech')}</option>
           <option value="gsvitts">{t('UsingGSVITTS')}</option>
           <option value="elevenlabs">{t('UsingElevenLabs')}</option>
+          <option value="openai">{t('UsingOpenAITTS')}</option>
+          <option value="azure">{t('UsingAzureTTS')}</option>
+          <option value="nijivoice">{t('UsingNijiVoice')}</option>
         </select>
       </div>
-      <div className="my-40">
-        <div className="my-16 typography-20 font-bold">
-          {t('VoiceAdjustment')}
-        </div>
+
+      <div className="mt-10">
+        <div className="mb-4 text-xl font-bold">{t('VoiceAdjustment')}</div>
         {(() => {
           if (selectVoice === 'koeiromap') {
             return (
@@ -78,10 +201,10 @@ const Voice = () => {
                     label="https://koemotion.rinna.co.jp"
                   />
                 </div>
-                <div className="mt-16 font-bold">API キー</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">API キー</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-2 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={koeiromapKey}
@@ -90,8 +213,9 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">プリセット</div>
-                <div className="my-8 grid grid-cols-2 gap-[8px]">
+
+                <div className="mt-4 font-bold">プリセット</div>
+                <div className="my-2 grid grid-cols-2 gap-[8px]">
                   <TextButton
                     onClick={() =>
                       settingsStore.setState({
@@ -141,7 +265,7 @@ const Voice = () => {
                     渋い
                   </TextButton>
                 </div>
-                <div className="my-24">
+                <div className="mt-6">
                   <div className="select-none">x : {koeiroParam.speakerX}</div>
                   <input
                     type="range"
@@ -149,7 +273,7 @@ const Voice = () => {
                     max={10}
                     step={0.001}
                     value={koeiroParam.speakerX}
-                    className="mt-8 mb-16 input-range"
+                    className="mt-2 mb-4 input-range"
                     onChange={(e) => {
                       settingsStore.setState({
                         koeiroParam: {
@@ -166,7 +290,7 @@ const Voice = () => {
                     max={10}
                     step={0.001}
                     value={koeiroParam.speakerY}
-                    className="mt-8 mb-16 input-range"
+                    className="mt-2 mb-4 input-range"
                     onChange={(e) => {
                       settingsStore.setState({
                         koeiroParam: {
@@ -190,7 +314,21 @@ const Voice = () => {
                     label="https://voicevox.hiroshiba.jp/"
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('SpeakerSelection')}</div>
+                <div className="mt-4 font-bold">{t('VoicevoxServerUrl')}</div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="http://localhost:50021"
+                    value={voicevoxServerUrl}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        voicevoxServerUrl: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('SpeakerSelection')}</div>
                 <div className="flex items-center">
                   <select
                     value={voicevoxSpeaker}
@@ -199,7 +337,7 @@ const Voice = () => {
                         voicevoxSpeaker: e.target.value,
                       })
                     }
-                    className="px-16 py-8 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
                   >
                     <option value="">{t('Select')}</option>
                     {speakers.map((speaker) => (
@@ -208,11 +346,8 @@ const Voice = () => {
                       </option>
                     ))}
                   </select>
-                  <TextButton onClick={() => testVoice()} className="ml-16">
-                    {t('TestVoice')}
-                  </TextButton>
                 </div>
-                <div className="my-24">
+                <div className="mt-6 font-bold">
                   <div className="select-none">
                     {t('VoicevoxSpeed')}: {voicevoxSpeed}
                   </div>
@@ -222,7 +357,7 @@ const Voice = () => {
                     max={2}
                     step={0.01}
                     value={voicevoxSpeed}
-                    className="mt-8 mb-16 input-range"
+                    className="mt-2 mb-4 input-range"
                     onChange={(e) => {
                       settingsStore.setState({
                         voicevoxSpeed: Number(e.target.value),
@@ -238,7 +373,7 @@ const Voice = () => {
                     max={0.15}
                     step={0.01}
                     value={voicevoxPitch}
-                    className="mt-8 mb-16 input-range"
+                    className="mt-2 mb-4 input-range"
                     onChange={(e) => {
                       settingsStore.setState({
                         voicevoxPitch: Number(e.target.value),
@@ -254,7 +389,7 @@ const Voice = () => {
                     max={2.0}
                     step={0.01}
                     value={voicevoxIntonation}
-                    className="mt-8 mb-16 input-range"
+                    className="mt-2 mb-4 input-range"
                     onChange={(e) => {
                       settingsStore.setState({
                         voicevoxIntonation: Number(e.target.value),
@@ -284,10 +419,10 @@ const Voice = () => {
                     label="https://cloud.google.com/text-to-speech/docs/voices"
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('LanguageChoice')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('LanguageChoice')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={googleTtsType}
@@ -311,12 +446,12 @@ const Voice = () => {
                   <br />
                   <br />
                 </div>
-                <div className="mt-16 font-bold">
+                <div className="mt-4 font-bold">
                   {t('StyleBeatVITS2ServerURL')}
                 </div>
-                <div className="mt-8">
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={stylebertvits2ServerUrl}
@@ -327,12 +462,12 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">
+                <div className="mt-4 font-bold">
                   {t('StyleBeatVITS2ApiKey')}
                 </div>
-                <div className="mt-8">
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={stylebertvits2ApiKey}
@@ -343,12 +478,12 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">
+                <div className="mt-4 font-bold">
                   {t('StyleBeatVITS2ModelID')}
                 </div>
-                <div className="mt-8">
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="number"
                     placeholder="..."
                     value={stylebertvits2ModelId}
@@ -359,12 +494,10 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">
-                  {t('StyleBeatVITS2Style')}
-                </div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('StyleBeatVITS2Style')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={stylebertvits2Style}
@@ -375,7 +508,7 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">
+                <div className="mt-4 font-bold">
                   {t('StyleBeatVITS2SdpRatio')}: {stylebertvits2SdpRatio}
                 </div>
                 <input
@@ -384,14 +517,14 @@ const Voice = () => {
                   max={1.0}
                   step={0.01}
                   value={stylebertvits2SdpRatio}
-                  className="mt-8 mb-16 input-range"
+                  className="mt-2 mb-4 input-range"
                   onChange={(e) => {
                     settingsStore.setState({
                       stylebertvits2SdpRatio: Number(e.target.value),
                     })
                   }}
                 ></input>
-                <div className="mt-16 font-bold">
+                <div className="mt-4 font-bold">
                   {t('StyleBeatVITS2Length')}: {stylebertvits2Length}
                 </div>
                 <input
@@ -400,7 +533,7 @@ const Voice = () => {
                   max={2.0}
                   step={0.01}
                   value={stylebertvits2Length}
-                  className="mt-8 mb-16 input-range"
+                  className="mt-2 mb-4 input-range"
                   onChange={(e) => {
                     settingsStore.setState({
                       stylebertvits2Length: Number(e.target.value),
@@ -409,14 +542,134 @@ const Voice = () => {
                 ></input>
               </>
             )
+          } else if (selectVoice === 'aivis_speech') {
+            return (
+              <>
+                <div>
+                  {t('AivisSpeechInfo')}
+                  <br />
+                  <Link
+                    url="https://aivis-project.com/"
+                    label="https://aivis-project.com/"
+                  />
+                </div>
+                <div className="mt-4 font-bold">
+                  {t('AivisSpeechServerUrl')}
+                </div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="http://localhost:10101"
+                    value={aivisSpeechServerUrl}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        aivisSpeechServerUrl: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('AivisSpeechSpeaker')}</div>
+                <div className="flex items-center">
+                  <select
+                    value={aivisSpeechSpeaker}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        aivisSpeechSpeaker: e.target.value,
+                      })
+                    }
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+                  >
+                    <option value="">{t('Select')}</option>
+                    {speakers_aivis.map((speaker) => (
+                      <option key={speaker.id} value={speaker.id}>
+                        {speaker.speaker}
+                      </option>
+                    ))}
+                  </select>
+
+                  <TextButton
+                    onClick={async () => {
+                      const response = await fetch(
+                        '/api/update-aivis-speakers?serverUrl=' +
+                          aivisSpeechServerUrl
+                      )
+                      if (response.ok) {
+                        // 話者リストを再読み込み
+                        const updatedSpeakersResponse = await fetch(
+                          '/speakers_aivis.json'
+                        )
+                        const updatedSpeakers =
+                          await updatedSpeakersResponse.json()
+                        // speakers_aivisを更新
+                        setSpeakers_aivis(updatedSpeakers)
+                      }
+                    }}
+                    className="ml-4"
+                  >
+                    {t('UpdateSpeakerList')}
+                  </TextButton>
+                </div>
+                <div className="mt-6 font-bold">
+                  <div className="select-none">
+                    {t('AivisSpeechSpeed')}: {aivisSpeechSpeed}
+                  </div>
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={2}
+                    step={0.01}
+                    value={aivisSpeechSpeed}
+                    className="mt-2 mb-4 input-range"
+                    onChange={(e) => {
+                      settingsStore.setState({
+                        aivisSpeechSpeed: Number(e.target.value),
+                      })
+                    }}
+                  ></input>
+                  <div className="select-none">
+                    {t('AivisSpeechPitch')}: {aivisSpeechPitch}
+                  </div>
+                  <input
+                    type="range"
+                    min={-0.15}
+                    max={0.15}
+                    step={0.01}
+                    value={aivisSpeechPitch}
+                    className="mt-2 mb-4 input-range"
+                    onChange={(e) => {
+                      settingsStore.setState({
+                        aivisSpeechPitch: Number(e.target.value),
+                      })
+                    }}
+                  ></input>
+                  <div className="select-none">
+                    {t('AivisSpeechIntonation')}: {aivisSpeechIntonation}
+                  </div>
+                  <input
+                    type="range"
+                    min={0.0}
+                    max={2.0}
+                    step={0.01}
+                    value={aivisSpeechIntonation}
+                    className="mt-2 mb-4 input-range"
+                    onChange={(e) => {
+                      settingsStore.setState({
+                        aivisSpeechIntonation: Number(e.target.value),
+                      })
+                    }}
+                  ></input>
+                </div>
+              </>
+            )
           } else if (selectVoice === 'gsvitts') {
             return (
               <>
                 <div>{t('GSVITTSInfo')}</div>
-                <div className="mt-16 font-bold">{t('GSVITTSServerUrl')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('GSVITTSServerUrl')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={gsviTtsServerUrl}
@@ -427,10 +680,10 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('GSVITTSModelID')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('GSVITTSModelID')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={gsviTtsModelId}
@@ -439,10 +692,10 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('GSVITTSBatchSize')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('GSVITTSBatchSize')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="number"
                     step="1"
                     placeholder="..."
@@ -454,10 +707,10 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('GSVITTSSpeechRate')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('GSVITTSSpeechRate')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="number"
                     step="0.1"
                     placeholder="..."
@@ -483,10 +736,10 @@ const Voice = () => {
                   />
                   <br />
                 </div>
-                <div className="mt-16 font-bold">{t('ElevenLabsApiKey')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('ElevenLabsApiKey')}</div>
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={elevenlabsApiKey}
@@ -497,8 +750,8 @@ const Voice = () => {
                     }
                   />
                 </div>
-                <div className="mt-16 font-bold">{t('ElevenLabsVoiceId')}</div>
-                <div className="mt-8">
+                <div className="mt-4 font-bold">{t('ElevenLabsVoiceId')}</div>
+                <div className="mt-2">
                   {t('ElevenLabsVoiceIdInfo')}
                   <br />
                   <Link
@@ -507,9 +760,9 @@ const Voice = () => {
                   />
                   <br />
                 </div>
-                <div className="mt-8">
+                <div className="mt-2">
                   <input
-                    className="text-ellipsis px-16 py-8 w-col-span-4 bg-surface1 hover:bg-surface1-hover rounded-8"
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
                     type="text"
                     placeholder="..."
                     value={elevenlabsVoiceId}
@@ -522,8 +775,268 @@ const Voice = () => {
                 </div>
               </>
             )
+          } else if (selectVoice === 'openai') {
+            return (
+              <>
+                <div>{t('OpenAITTSInfo')}</div>
+                <div className="mt-4 font-bold">{t('OpenAIAPIKeyLabel')}</div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="..."
+                    value={openaiAPIKey}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        openaiKey: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('OpenAITTSVoice')}</div>
+                <div className="mt-2">
+                  <select
+                    value={openaiTTSVoice}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        openaiTTSVoice: e.target.value as OpenAITTSVoice,
+                      })
+                    }
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+                  >
+                    <option value="alloy">alloy</option>
+                    <option value="ash">ash</option>
+                    <option value="ballad">ballad</option>
+                    <option value="coral">coral</option>
+                    <option value="echo">echo</option>
+                    <option value="fable">fable</option>
+                    <option value="onyx">onyx</option>
+                    <option value="nova">nova</option>
+                    <option value="sage">sage</option>
+                    <option value="shimmer">shimmer</option>
+                  </select>
+                </div>
+                <div className="mt-4 font-bold">{t('OpenAITTSModel')}</div>
+                <div className="mt-2">
+                  <select
+                    value={openaiTTSModel}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        openaiTTSModel: e.target.value as OpenAITTSModel,
+                      })
+                    }
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+                  >
+                    {getOpenAITTSModels().map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-4 font-bold">
+                  {t('OpenAITTSSpeed')}: {openaiTTSSpeed}
+                </div>
+                <input
+                  type="range"
+                  min={0.25}
+                  max={4.0}
+                  step={0.01}
+                  value={openaiTTSSpeed}
+                  className="mt-2 mb-4 input-range"
+                  onChange={(e) => {
+                    settingsStore.setState({
+                      openaiTTSSpeed: Number(e.target.value),
+                    })
+                  }}
+                />
+              </>
+            )
+          } else if (selectVoice === 'azure') {
+            return (
+              <>
+                <div>{t('AzureTTSInfo')}</div>
+                <div className="mt-4 font-bold">{t('AzureAPIKeyLabel')}</div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="..."
+                    value={azureTTSKey}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        azureTTSKey: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('AzureEndpoint')}</div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="..."
+                    value={azureTTSEndpoint}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        azureTTSEndpoint: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('OpenAITTSVoice')}</div>
+                <div className="mt-2">
+                  <select
+                    value={openaiTTSVoice}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        openaiTTSVoice: e.target.value as OpenAITTSVoice,
+                      })
+                    }
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+                  >
+                    <option value="alloy">alloy</option>
+                    <option value="echo">echo</option>
+                    <option value="fable">fable</option>
+                    <option value="onyx">onyx</option>
+                    <option value="nova">nova</option>
+                    <option value="shimmer">shimmer</option>
+                  </select>
+                </div>
+                <div className="mt-4 font-bold">{t('OpenAITTSModel')}</div>
+                <div className="mt-4 font-bold">
+                  {t('OpenAITTSSpeed')}: {openaiTTSSpeed}
+                </div>
+                <input
+                  type="range"
+                  min={0.25}
+                  max={4.0}
+                  step={0.01}
+                  value={openaiTTSSpeed}
+                  className="mt-2 mb-4 input-range"
+                  onChange={(e) => {
+                    settingsStore.setState({
+                      openaiTTSSpeed: Number(e.target.value),
+                    })
+                  }}
+                />
+              </>
+            )
+          } else if (selectVoice === 'nijivoice') {
+            return (
+              <>
+                <div>{t('NijiVoiceInfo')}</div>
+                <Link
+                  url="https://app.nijivoice.com/"
+                  label="https://app.nijivoice.com/"
+                />
+                <div className="mt-4 font-bold">{t('NijiVoiceApiKey')}</div>
+                <div className="mt-2">
+                  <input
+                    className="text-ellipsis px-4 py-2 w-col-span-4 bg-white hover:bg-white-hover rounded-lg"
+                    type="text"
+                    placeholder="..."
+                    value={nijivoiceApiKey}
+                    onChange={(e) =>
+                      settingsStore.setState({
+                        nijivoiceApiKey: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-4 font-bold">{t('NijiVoiceActorId')}</div>
+                <div className="mt-2">
+                  <select
+                    value={nijivoiceActorId}
+                    onChange={(e) => {
+                      settingsStore.setState({
+                        nijivoiceActorId: e.target.value,
+                      })
+                    }}
+                    className="px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+                  >
+                    <option value="">{t('Select')}</option>
+                    {nijivoiceSpeakers.map((actor) => (
+                      <option key={actor.id} value={actor.id}>
+                        {actor.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-4 font-bold">
+                  {t('NijiVoiceSpeed')}: {nijivoiceSpeed}
+                </div>
+                <input
+                  type="range"
+                  min={0.4}
+                  max={3.0}
+                  step={0.1}
+                  value={nijivoiceSpeed}
+                  className="mt-2 mb-4 input-range"
+                  onChange={(e) => {
+                    settingsStore.setState({
+                      nijivoiceSpeed: Number(e.target.value),
+                    })
+                  }}
+                />
+                <div className="mt-4 font-bold">
+                  {t('NijiVoiceEmotionalLevel')}: {nijivoiceEmotionalLevel}
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={1.5}
+                  step={0.1}
+                  value={nijivoiceEmotionalLevel}
+                  className="mt-2 mb-4 input-range"
+                  onChange={(e) => {
+                    settingsStore.setState({
+                      nijivoiceEmotionalLevel: Number(e.target.value),
+                    })
+                  }}
+                />
+                <div className="mt-4 font-bold">
+                  {t('NijiVoiceSoundDuration')}: {nijivoiceSoundDuration}
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={1.7}
+                  step={0.1}
+                  value={nijivoiceSoundDuration}
+                  className="mt-2 mb-4 input-range"
+                  onChange={(e) => {
+                    settingsStore.setState({
+                      nijivoiceSoundDuration: Number(e.target.value),
+                    })
+                  }}
+                />
+              </>
+            )
           }
         })()}
+      </div>
+
+      {/* カスタムテキスト入力と統合テストボタン */}
+      <div className="mt-10 p-4 bg-gray-50 rounded-lg">
+        <div className="mb-4 text-xl font-bold">{t('TestVoiceSettings')}</div>
+        <div className="flex items-center">
+          <input
+            className="flex-1 px-4 py-2 bg-white hover:bg-white-hover rounded-lg"
+            type="text"
+            placeholder={t('CustomVoiceTextPlaceholder')}
+            value={customVoiceText}
+            onChange={(e) => setCustomVoiceText(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center mt-4">
+          <TextButton
+            onClick={() => testVoice(selectVoice, customVoiceText)}
+            disabled={!customVoiceText}
+          >
+            {t('TestSelectedVoice')}
+          </TextButton>
+        </div>
       </div>
     </div>
   )

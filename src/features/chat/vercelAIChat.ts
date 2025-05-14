@@ -1,6 +1,43 @@
 import { Message } from '../messages/messages'
-import settingsStore from '@/features/stores/settings'
 import i18next from 'i18next'
+import settingsStore, {
+  multiModalAIServiceKey,
+} from '@/features/stores/settings'
+import toastStore from '@/features/stores/toast'
+import {
+  isVercelLocalAIService,
+  AIService,
+} from '@/features/constants/settings'
+
+const getAIConfig = () => {
+  const ss = settingsStore.getState()
+  // AIServiceとして扱う（より広い型）
+  const aiService = ss.selectAIService as AIService
+
+  // APIキー名は条件分岐で取得
+  const apiKey =
+    typeof aiService === 'string' &&
+    aiService !== 'dify' &&
+    aiService !== 'custom-api'
+      ? (ss[`${aiService}Key` as keyof typeof ss] as string)
+      : ''
+
+  return {
+    aiApiKey: apiKey,
+    selectAIService: aiService,
+    selectAIModel: ss.selectAIModel,
+    localLlmUrl: ss.localLlmUrl,
+    azureEndpoint: ss.azureEndpoint,
+    useSearchGrounding: ss.useSearchGrounding,
+    temperature: ss.temperature,
+    maxTokens: ss.maxTokens,
+    customApiUrl: ss.customApiUrl,
+    customApiHeaders: ss.customApiHeaders,
+    customApiBody: ss.customApiBody,
+    customApiStream: ss.customApiStream,
+    includeSystemMessagesInCustomApi: ss.includeSystemMessagesInCustomApi,
+  }
+}
 
 function handleApiError(errorCode: string): string {
   const languageCode = settingsStore.getState().selectLanguage
@@ -8,31 +45,81 @@ function handleApiError(errorCode: string): string {
   return i18next.t(`Errors.${errorCode || 'AIAPIError'}`)
 }
 
-export async function getVercelAIChatResponse(
-  messages: Message[],
-  apiKey: string,
-  aiService: string,
-  model: string
-) {
+// APIエンドポイントを決定する関数
+function getApiEndpoint(aiService: string): string {
+  // isVercelLocalAIServiceを使用してapiサービスかどうかを判定
+  if (isVercelLocalAIService(aiService) && aiService === 'custom-api') {
+    return '/api/ai/custom'
+  }
+  return '/api/ai/vercel'
+}
+
+export async function getVercelAIChatResponse(messages: Message[]) {
+  const {
+    aiApiKey,
+    selectAIService,
+    selectAIModel,
+    localLlmUrl,
+    azureEndpoint,
+    useSearchGrounding,
+    temperature,
+    maxTokens,
+    customApiUrl,
+    customApiHeaders,
+    customApiBody,
+  } = getAIConfig()
+
+  // APIエンドポイントを決定
+  const apiEndpoint = getApiEndpoint(selectAIService)
+
   try {
-    const response = await fetch('/api/aiChat', {
+    // 共通リクエストデータ
+    const requestData: any = {
+      messages,
+      stream: false,
+    }
+
+    // サービスタイプに応じてリクエストデータを追加
+    if (selectAIService === 'custom-api') {
+      // カスタムAPI用データ
+      const filteredMessages = getAIConfig().includeSystemMessagesInCustomApi
+        ? messages
+        : messages.filter((message) => message.role !== 'system')
+
+      Object.assign(requestData, {
+        customApiUrl,
+        customApiHeaders,
+        customApiBody,
+        temperature,
+        maxTokens,
+        messages: filteredMessages, // フィルタリングされたメッセージを使用
+      })
+    } else {
+      // Vercel AI SDK用データ
+      Object.assign(requestData, {
+        apiKey: aiApiKey,
+        aiService: selectAIService,
+        model: selectAIModel,
+        localLlmUrl,
+        azureEndpoint,
+        useSearchGrounding,
+        temperature,
+        maxTokens,
+      })
+    }
+
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messages,
-        apiKey,
-        aiService,
-        model,
-        stream: false,
-      }),
+      body: JSON.stringify(requestData),
     })
 
     if (!response.ok) {
       const responseBody = await response.json()
       throw new Error(
-        `API request to ${aiService} failed with status ${response.status} and body ${responseBody.error}`,
+        `API request to ${selectAIService} failed with status ${response.status} and body ${responseBody.error}`,
         { cause: { errorCode: responseBody.errorCode } }
       )
     }
@@ -40,36 +127,82 @@ export async function getVercelAIChatResponse(
     const data = await response.json()
     return { text: data.text }
   } catch (error: any) {
-    console.error(`Error fetching ${aiService} API response:`, error)
-    return { text: handleApiError(error.cause.errorCode) }
+    console.error(`Error fetching ${selectAIService} API response:`, error)
+    const errorCode = error.cause
+      ? error.cause.errorCode || 'AIAPIError'
+      : 'AIAPIError'
+    return { text: handleApiError(errorCode) }
   }
 }
 
 export async function getVercelAIChatResponseStream(
-  messages: Message[],
-  apiKey: string,
-  aiService: string,
-  model: string
+  messages: Message[]
 ): Promise<ReadableStream<string>> {
-  const response = await fetch('/api/aiChat', {
+  const {
+    aiApiKey,
+    selectAIService,
+    selectAIModel,
+    localLlmUrl,
+    azureEndpoint,
+    useSearchGrounding,
+    temperature,
+    maxTokens,
+    customApiUrl,
+    customApiHeaders,
+    customApiBody,
+  } = getAIConfig()
+
+  // APIエンドポイントを決定
+  const apiEndpoint = getApiEndpoint(selectAIService)
+
+  // 共通リクエストデータ
+  const requestData: any = {
+    messages,
+    stream: true,
+  }
+
+  // サービスタイプに応じてリクエストデータを追加
+  if (selectAIService === 'custom-api') {
+    // カスタムAPI用データ
+    const filteredMessages = getAIConfig().includeSystemMessagesInCustomApi
+      ? messages
+      : messages.filter((message) => message.role !== 'system')
+
+    Object.assign(requestData, {
+      customApiUrl,
+      customApiHeaders,
+      customApiBody,
+      temperature,
+      maxTokens,
+      messages: filteredMessages, // フィルタリングされたメッセージを使用
+    })
+  } else {
+    // Vercel AI SDK用データ
+    Object.assign(requestData, {
+      apiKey: aiApiKey,
+      aiService: selectAIService,
+      model: selectAIModel,
+      localLlmUrl,
+      azureEndpoint,
+      useSearchGrounding,
+      temperature,
+      maxTokens,
+    })
+  }
+
+  const response = await fetch(apiEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      messages,
-      apiKey,
-      aiService,
-      model,
-      stream: true,
-    }),
+    body: JSON.stringify(requestData),
   })
 
   try {
     if (!response.ok) {
       const responseBody = await response.json()
       throw new Error(
-        `API request to ${aiService} failed with status ${response.status} and body ${responseBody.error}`,
+        `API request to ${selectAIService} failed with status ${response.status} and body ${responseBody.error}`,
         { cause: { errorCode: responseBody.errorCode } }
       )
     }
@@ -78,7 +211,7 @@ export async function getVercelAIChatResponseStream(
       async start(controller) {
         if (!response.body) {
           throw new Error(
-            `API response from ${aiService} is empty, status ${response.status}`,
+            `API response from ${selectAIService} is empty, status ${response.status}`,
             { cause: { errorCode: 'AIAPIError' } }
           )
         }
@@ -101,18 +234,83 @@ export async function getVercelAIChatResponseStream(
                 const content = line.substring(2).trim()
                 const decodedContent = JSON.parse(content)
                 controller.enqueue(decodedContent)
+              } else if (line.startsWith('data:')) {
+                // OpenAI API形式のストリームデータに対応
+                const content = line.substring(5).trim() // 'data:' プレフィックスを除去
+                if (content === '[DONE]') continue // 終了マーカーは無視
+
+                try {
+                  const data = JSON.parse(content)
+                  const text = data.choices?.[0]?.delta?.content
+                  if (text) {
+                    controller.enqueue(text)
+                  }
+                } catch (error) {
+                  console.error('Error parsing JSON:', error)
+                }
+              } else if (line.startsWith('3:')) {
+                const content = line.substring(2).trim()
+                const decodedContent = JSON.parse(content)
+
+                console.error(
+                  `Error fetching ${selectAIService} API response:`,
+                  decodedContent
+                )
+                toastStore.getState().addToast({
+                  message: decodedContent,
+                  type: 'error',
+                  tag: 'vercel-api-error',
+                })
+              } else if (line.startsWith('9:')) {
+                // Anthropicのツール呼び出し情報を処理
+                const content = line.substring(2).trim()
+                try {
+                  const decodedContent = JSON.parse(content)
+                  if (decodedContent.toolName) {
+                    console.log(`Tool called: ${decodedContent.toolName}`)
+                    const message = i18next.t('Toasts.UsingTool', {
+                      toolName: decodedContent.toolName,
+                    })
+                    toastStore.getState().addToast({
+                      message,
+                      type: 'tool',
+                      tag: `vercel-tool-info-${decodedContent.toolName}`,
+                      duration: 3000,
+                    })
+                  }
+                } catch (error) {
+                  console.error('Error parsing tool call JSON:', error)
+                }
+              } else if (line.startsWith('e:') || line.startsWith('d:')) {
+                continue
+              } else if (line.match(/^([a-z]|\d):/)) {
+                // これらは通常、ストリームの終了やメタデータを示すものであり、コンテンツではない
+                continue
+              } else if (line.trim() !== '') {
+                // Ollamaなど、JSONLフォーマットのストリーミングデータに対応
+                try {
+                  const data = JSON.parse(line)
+                  // Ollama形式: {"message":{"role":"assistant","content":"テキスト"}}
+                  if (data.message?.content) {
+                    controller.enqueue(data.message.content)
+                  }
+                } catch (error) {
+                  console.error('Error parsing JSONL:', error, line)
+                }
               }
             }
           }
         } catch (error) {
-          console.error(`Error fetching ${aiService} API response:`, error)
+          console.error(
+            `Error fetching ${selectAIService} API response:`,
+            error
+          )
 
-          return new ReadableStream({
-            start(controller) {
-              const errorMessage = handleApiError('AIAPIError')
-              controller.enqueue(errorMessage)
-              controller.close()
-            },
+          const errorMessage = handleApiError('AIAPIError')
+          toastStore.getState().addToast({
+            message: errorMessage,
+            type: 'error',
+            tag: 'vercel-api-error',
           })
         } finally {
           controller.close()
@@ -121,12 +319,14 @@ export async function getVercelAIChatResponseStream(
       },
     })
   } catch (error: any) {
-    const errorMessage = handleApiError(error.cause.errorCode)
-    return new ReadableStream({
-      start(controller) {
-        controller.enqueue(errorMessage)
-        controller.close()
-      },
+    const errorMessage = handleApiError(
+      error.cause ? error.cause.errorCode : 'AIAPIError'
+    )
+    toastStore.getState().addToast({
+      message: errorMessage,
+      type: 'error',
+      tag: 'vercel-api-error',
     })
+    throw error
   }
 }

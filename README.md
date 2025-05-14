@@ -1,50 +1,125 @@
-<h1 align="center">
-  <img style="max-width: 100%;" src="./docs/logo.png">
-</h1>
+# AITuberKit
+
+<img style="max-width: 100%;" src="./public/ogp.png">
+
+**お知らせ: 本プロジェクトはバージョン v2.0.0 以降、カスタムライセンスを採用しています。商用目的でご利用の場合は、[利用規約](#利用規約) セクションをご確認ください。**
 
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Top Language" src="https://img.shields.io/github/languages/top/tegnike/aituber-kit"></a>
    <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tegnike/aituber-kit?sort=semver&color=orange">
-   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/tegnike/aituber-kit"></a>
+   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="License: Custom" src="https://img.shields.io/badge/License-Custom-blue"></a>
 </p>
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/tegnike/aituber-kit"></a>
+   <a href="https://coderabbit.ai/tegnike/aituber-kit"><img alt="CodeRabbit Pull Request Reviews" src="https://img.shields.io/coderabbit/prs/github/tegnike/aituber-kit?utm_source=oss&utm_medium=github&utm_campaign=tegnike%2Faituber-kit&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews"></a>
 </p>
 <p align="center">
    <a href="https://x.com/tegnike"><img alt="X (Twitter)" src="https://img.shields.io/badge/X-tegnike-1DA1F2?logo=x&style=flat&logoColor=white"/></a>
-   <a href="https://discord.gg/T96PTvrs"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
+   <a href="https://discord.gg/5rHEue52nZ"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
    <a href="https://github.com/sponsors/tegnike"><img alt="GitHub Sponsor" src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat&logo=github"/></a>
+   <a href="https://deepwiki.com/tegnike/aituber-kit"><img src="https://img.shields.io/badge/DeepWiki-tegnike%2Faituber--kit-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==" alt="DeepWiki"></a>
 </p>
+
+<div align="center">
+   <h3>
+      🌟 <a href="https://aituberkit.com">デモサイトへ</a> 🌟
+   </h3>
+</div>
+
+<div align="center">
+   <h3>
+      📚 <a href="https://docs.aituberkit.com/">ドキュメントサイトへ</a> 📚
+   </h3>
+</div>
 
 <h3 align="center">
    <a href="./docs/README_en.md">English</a>｜
    <a href="./docs/README_zh.md">中文</a>｜
-   <a href="./docs/README_ko.md">韓語</a>
+   <a href="./docs/README_ko.md">한국어</a>｜
+   <a href="./docs/README_pl.md">Polski</a>
 </h3>
 
 ## 概要
 
-主に以下の2つの機能があります。
+AITuberKitは、誰でも簡単にAIキャラクターとチャットできるWebアプリケーションを構築できるオープンソースのツールキットです。<br>
+豊富なAIサービス、キャラクターモデル、音声合成エンジンに対応し、高いカスタマイズ性を備えた対話機能とAITuber配信機能を中心に、様々な拡張モードを提供しています。
 
-1. AIキャラとの対話
-2. AITuber配信
+<img src="./docs/images/architecture.svg" alt="AITuberKit Architecture">
 
-下記の記事に詳細な使用方法を記載しました。
+詳細な使用方法や設定方法については、[ドキュメントサイト](https://docs.aituberkit.com/)をご覧ください。
 
-[![今日からあなたもAITuberデベロッパー｜ニケちゃん](https://github.com/tegnike/aituber-kit/assets/35606144/a958f505-72f9-4665-ab6c-b57b692bb166)](https://note.com/nike_cha_n/n/ne98acb25e00f)
+## Star History
 
-## 開発環境
+[![Star History Chart](https://api.star-history.com/svg?repos=tegnike/aituber-kit&type=Date)](https://star-history.com/#tegnike/aituber-kit&Date)
 
-このプロジェクトは以下の環境で開発されています：
+## 主な機能
+
+### 1. AIキャラとの対話
+
+- 各種LLMのAPIキーを使って、AIキャラクターと簡単に会話可能
+- マルチモーダル対応で、カメラからの映像やアップロードした画像を認識して回答を生成
+- 直近の会話文を記憶として保持
+
+### 2. AITuber配信
+
+- YouTubeの配信コメントを取得して、AIキャラクターが自動で応答
+- 会話継続モードでコメントがなくても自発的に発言可能
+- "#"から始まるコメントは読まれない機能
+
+### 3. その他の機能
+
+- **外部連携モード**: WebSocketでサーバーアプリと連携し、より高度な機能を実現
+- **スライドモード**: AIキャラクターがスライドを自動で発表するモード
+- **Realtime API**: OpenAIのRealtime APIを使用した低遅延対話と関数実行
+- **オーディオモード**: OpenAIのAudio API機能を活用した自然な音声対話
+- **メッセージ受信機能**: 専用APIを通じて外部から指示を受け付け、AIキャラクターに発言させることが可能
+
+## 対応モデル・サービス
+
+### キャラクターモデル
+
+- **3Dモデル**: VRMファイル
+- **2Dモデル**: Live2Dファイル（Cubism 3以降）
+
+### 対応LLM
+
+- OpenAI
+- Anthropic
+- Google Gemini
+- Azure OpenAI
+- Groq
+- Cohere
+- Mistral AI
+- Perplexity
+- Fireworks
+- ローカルLLM
+- Dify
+
+### 対応音声合成エンジン
+
+- VOICEVOX
+- Koeiromap
+- Google Text-to-Speech
+- Style-Bert-VITS2
+- AivisSpeech
+- GSVI TTS
+- ElevenLabs
+- OpenAI
+- Azure OpenAI
+- にじボイス
+
+## クイックスタート
+
+### 開発環境
 
 - Node.js: ^20.0.0
-- npm: 10.8.1
+- npm: ^10.0.0
 
-## 共通事前準備
+### インストール手順
 
 1. リポジトリをローカルにクローンします。
 
@@ -72,104 +147,36 @@ npm run dev
 
 5. URLを開きます。[http://localhost:3000](http://localhost:3000)
 
-## AIキャラとの対話
+6. 必要に応じて.envファイルを作成します。
 
-- AIキャラと会話する機能です。
-- このリポジトリの元になっている[pixiv/ChatVRM](https://github.com/pixiv/ChatVRM)を拡張した機能です。
-- 各種LLMのAPIキーさえあれば比較的簡単に試すことが可能です。
-- 直近の会話文を記憶として保持します。
-- マルチモーダルで、カメラからの映像やアップロードした画像を認識して回答を生成することが可能です。
+```bash
+cp .env.example .env
+```
 
-### 使用方法
+詳細な設定方法や使用方法については、[ドキュメントサイト](https://docs.aituberkit.com/)をご覧ください。
 
-1. 設定画面で各種LLMのAPIキーを入力します。
-   - OpenAI
-   - Anthropic
-   - Google Gemini
-   - Groq
-   - ローカルLLM（APIキーは不要ですが、ローカルAPIサーバーを起動しておく必要があります。）
-   - Dify Chatbot（APIキーは不要ですが、ローカルAPIサーバーを起動しておく必要があります。）
-2. 必要に応じてキャラクターの設定プロンプトを編集します。
-3. 用意がある場合は、VRMファイルおよび背景ファイルをアップロードします。
-4. 音声合成エンジンを選択し、必要に応じて声の設定を行います。
-   - VOICEVOXの場合は複数の選択肢から話者を選ぶことができます。予めVOICEVOXアプリを起動しておく必要があります。
-   - Koeiromapの場合は、細かく音声を調整することが可能です。APIキーの入力が必要です。
-   - Google TTSの場合は日本語以外の言語も選択可能です。credential情報が必要です。
-   - Style-Bert-VITS2は、ローカルAPIサーバーを起動しておく必要があります。
-   - GSVI TTSは、ローカルAPIサーバーを起動しておく必要があります。
-   - ElevenLabsは様々な言語の選択が可能です。APIキーを入力してください。
-5. 入力フォームからキャラクターと会話を開始します。マイク入力も可能。
+## ⚠️ セキュリティに関する重要な注意事項
 
-## AITuber配信
+このリポジトリは、個人利用やローカル環境での開発はもちろん、適切なセキュリティ対策を施した上での商用利用も想定しています。ただし、Web環境にデプロイする際は以下の点にご注意ください：
 
-- Youtubeの配信コメントを取得して発言することが可能です。
-- Youtube APIキーが必要です。
-- 「#」から始まるコメントは読まれません。
+- **APIキーの取り扱い**: バックエンドサーバーを経由してAIサービス（OpenAI, Anthropic等）やTTSサービスのAPIを呼び出す仕様となっているため、APIキーの適切な管理が必要です。
 
-### 使用方法
+### 本番環境での利用について
 
-1. 設定画面でYoutubeモードをONにします。
-2. Youtube APIキーとYoutube Live IDを入力します。
-3. 他の設定は「AIキャラとの対話」と同様に行います。
-4. Youtubeの配信を開始し、キャラクターがコメントに反応するのを確認します。
-5. 会話継続モードをONにすると、コメントが無いときにAIが自ら発言することができます。
+本番環境で利用する場合は、以下のいずれかの対応を推奨します：
 
-## その他の機能
-
-### 外部連携モード（β版）
-
-- WebSocketでサーバーアプリにメッセージを送信して、レスポンスを取得することができます。
-- 上記2つと異なり、フロントアプリで完結しないため少し難易度が高いです。
-- ⚠ 現在メンテナンスしきれていないため、動かない可能性があります。
-
-#### 使用方法
-
-1. サーバーアプリを起動し、`ws://127.0.0.1:8000/ws` エンドポイントを開きます。
-2. 設定画面でWebSocketモードをONにします。
-3. 他の設定は「AIキャラとの対話」と同様に行います。
-4. サーバーアプリからのメッセージを待ち、キャラクターが反応するのを確認します。
-
-#### 関連
-
-- 私が作成したサーバーアプリのリポジトリで試すことが可能です。[tegnike/aituber-server](https://github.com/tegnike/aituber-server)
-- 詳しい設定は「[美少女と一緒に開発しようぜ！！【Open Interpreter】](https://note.com/nike_cha_n/n/nabcfeb7aaf3f)」を読んでください。
-
-### スライドモード
-
-- スライドをAIキャラが自動で発表するモードです。
-- 予めスライドと台本ファイルを用意しておく必要があります。
-
-#### 使用方法
-
-1. 予めAIキャラと対話できるところまで進めておきます。
-2. スライドフォルダと台本ファイルを指定のフォルダに配置します。
-3. 設定画面でスライドモードをONにします。
-4. スライド開始ボタンを押して発表を開始します。
-
-## TIPS
-
-### VRMモデル、背景固定方法
-
-- VRMモデルは `public/AvatarSample_B.vrm` のデータを変更してください。名称は変更しないでください。
-- 背景画像は `public/bg-c.jpg` の画像を変更してください。名称は変更しないでください。
-
-### 環境変数の設定
-
-- 一部の設定値は `.env` ファイルの内容を参照することができます。
-- 設定画面で入力した場合は、その値が優先されます。
-
-### その他
-
-- 会話履歴は設定画面でリセットすることができます。
-- 各種設定項目はブラウザに保存されます。
-- コードブロックで囲まれた要素はTTSで読まれません。
+1. **バックエンドサーバーの実装**: APIキーの管理をサーバーサイドで行い、クライアントからの直接的なAPIアクセスを避ける
+2. **利用者への適切な説明**: 各利用者が自身のAPIキーを使用する場合は、セキュリティ上の注意点について説明する
+3. **アクセス制限の実装**: 必要に応じて、適切な認証・認可の仕組みを実装する
 
 ## スポンサー募集
 
 開発を継続するためにスポンサーの方を募集しています。<br>
-あなたの支援は、AITuberキットの開発と改善に大きく貢献します。
+あなたの支援は、AITuberKitの開発と改善に大きく貢献します。
 
 [![GitHub Sponsor](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=github)](https://github.com/sponsors/tegnike)
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/fdanv1k6iz)
 
 ### 協力者の皆様（ご支援いただいた順）
 
@@ -219,86 +226,78 @@ npm run dev
   <a href="https://github.com/gijigae" title="gijigae">
     <img src="https://github.com/gijigae.png" width="40" height="40" alt="gijigae">
   </a>
+  <a href="https://github.com/takm-reason" title="takm-reason">
+    <img src="https://github.com/takm-reason.png" width="40" height="40" alt="takm-reason">
+  </a>
+  <a href="https://github.com/haoling" title="haoling">
+    <img src="https://github.com/haoling.png" width="40" height="40" alt="haoling">
+  </a>
+  <a href="https://github.com/FoundD-oka" title="FoundD-oka">
+    <img src="https://github.com/FoundD-oka.png" width="40" height="40" alt="FoundD-oka">
+  </a>
+  <a href="https://github.com/terisuke" title="terisuke">
+    <img src="https://github.com/terisuke.png" width="40" height="40" alt="terisuke">
+  </a>
+  <a href="https://github.com/konpeita" title="konpeita">
+    <img src="https://github.com/konpeita.png" width="40" height="40" alt="konpeita">
+  </a>
+  <a href="https://github.com/MojaX2" title="MojaX2">
+    <img src="https://github.com/MojaX2.png" width="40" height="40" alt="MojaX2">
+  </a>
+  <a href="https://github.com/micchi99" title="micchi99">
+    <img src="https://github.com/micchi99.png" width="40" height="40" alt="micchi99">
+  </a>
+  <a href="https://github.com/nekomeowww" title="nekomeowww">
+    <img src="https://github.com/nekomeowww.png" width="40" height="40" alt="nekomeowww">
+  </a>
+  <a href="https://github.com/yfuku" title="yfuku">
+    <img src="https://github.com/yfuku.png" width="40" height="40" alt="yfuku">
+  </a>
+  <a href="https://x.com/8484ff_42" title="8484ff_42">
+    <img src="https://pbs.twimg.com/profile_images/1869378029786656768/m_K1Cjqx_normal.jpg" width="40" height="40" alt="8484ff_42">
+  </a>
+  <a href="https://github.com/sher1ock-jp" title="sher1ock-jp">
+    <img src="https://github.com/sher1ock-jp.png" width="40" height="40" alt="sher1ock-jp">
+  </a>
+  <a href="https://github.com/uwaguchi" title="uwaguchi">
+    <img src="https://github.com/uwaguchi.png" width="40" height="40" alt="uwaguchi">
+  </a>
+  <a href="https://x.com/M1RA_A_Project" title="M1RA_A_Project">
+    <img src="https://pbs.twimg.com/profile_images/1903385253504507904/ceBSG9Wl_400x400.jpg" width="40" height="40" alt="M1RA_A_Project">
+  </a>
+  <a href="https://github.com/teruPP" title="teruPP">
+    <img src="https://github.com/teruPP.png" width="40" height="40" alt="teruPP">
+  </a>
 </p>
 
 他、プライベートスポンサー 複数名
 
 ## 利用規約
 
-- ライセンスは [pixiv/ChatVRM](https://github.com/pixiv/ChatVRM) に準拠し、MITライセンスとしています。
+### ライセンス
+
+本プロジェクトは、バージョン v2.0.0 以降、**カスタムライセンス**を採用しています。
+
+- **無償利用**
+
+  - 営利目的以外での個人利用、教育目的、非営利目的での使用は無償で利用可能です。
+
+- **商用ライセンス**
+  - 商用目的での使用に関しては、別途商用ライセンスの取得が必要です。
+  - 詳細は、[ライセンスについて](./docs/license.md)をご確認ください。
+
+### その他
+
 - [ロゴの利用規約](./docs/logo_licence.md)
-- [VRMモデルの利用規約](./docs/vrm_licence.md)
+- [VRMおよびLive2Dモデルの利用規約](./docs/character_model_licence.md)
 
-## コントリビューター用TIPS
+## 優先実装について
 
-### 新しい言語の追加方法
+本プロジェクトでは、有償での機能優先実装を受け付けています。
 
-新しい言語をプロジェクトに追加するには、以下の手順に従ってください。
+- 企業や個人の方から要望のあった機能を、優先的に実装することが可能です。
+- 実装された機能は、本OSSプロジェクトの一部として公開されます。
+- 料金は機能の複雑さや実装に要する時間に応じて個別見積もりとなります。
+- この優先実装は商用ライセンスとは別の取り組みです。実装された機能を商用利用する場合は、別途商用ライセンスの取得が必要です。
 
-1. **言語ファイルの追加**:
-
-   - `locales` ディレクトリに新しい言語のディレクトリを作成し、その中に `translation.json` ファイルを作成します。
-   - 例: `locales/fr/translation.json` (フランス語の場合)
-
-2. **翻訳の追加**:
-
-   - `translation.json` ファイルに、既存の言語ファイルを参考にして翻訳を追加します。
-
-3. **言語設定の更新**:
-
-   - `src/lib/i18n.js` ファイルを開き、`resources` オブジェクトに新しい言語を追加します。
-
-   ```javascript:src/lib/i18n.js
-   resources: {
-     ...,
-     fr: {  // 新しい言語コード
-       translation: require("../../locales/fr/translation.json"),
-     },
-   },
-   ```
-
-4. **言語選択オプションの追加**:
-
-   - ユーザーが言語を選択できるように、UIの適切な部分（例えば設定画面の言語選択ドロップダウン）に新しい言語オプションを追加します。
-
-   ```typescript:src/components/settings.tsx
-   <select>
-     ...,
-     <option value="FR">フランス語 - French</option>
-   </select>
-   ```
-
-5. **テスト**:
-   - 新しい言語でアプリケーションが正しく表示されるかテストします。
-
-これで新しい言語のサポートがプロジェクトに追加されます。
-
-#### 音声言語コードの追加
-
-- 音声言語コードの対応も追加する必要があります。
-- `Introduction` コンポーネント内の `getVoiceLanguageCode` 関数に新しい言語コードを追加します。
-
-```typescript:nike-ChatVRM/src/components/introduction.tsx
-const getVoiceLanguageCode = (selectLanguage: string) => {
-  switch (selectLanguage) {
-    case 'JP':
-      return 'ja-JP';
-    case 'EN':
-      return 'en-US';
-    case 'ZH':
-      return 'zh-TW';
-    case 'zh-TW':
-      return 'zh-TW';
-    case 'KO':
-      return 'ko-KR';
-    case 'FR':
-      return 'fr-FR';
-    default:
-      return 'ja-JP';
-  }
-}
-```
-
-#### READMEの追加
-
-- 新しい言語のREADME (`README_fr.md`), ロゴ利用規約 (`logo_licence_fr.md`), VRMモデル利用規約 (`vrm_licence_fr.md`) を `docs` ディレクトリに追加してください。
+詳細については、support@aituberkit.com までお問い合わせください。

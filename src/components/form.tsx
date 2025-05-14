@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import settingsStore from '@/features/stores/settings'
 import homeStore from '@/features/stores/home'
 import menuStore from '@/features/stores/menu'
 import slideStore from '@/features/stores/slide'
-import {
-  handleSendChatFn,
-  handleReceiveTextFromWsFn,
-} from '../features/chat/handlers'
+import { handleSendChatFn } from '../features/chat/handlers'
 import { MessageInputContainer } from './messageInputContainer'
-import useWebSocket from './useWebSocket'
-import useYoutube from './useYoutube'
+import { PresetQuestionButtons } from './presetQuestionButtons'
 import { SlideText } from './slideText'
 
 export const Form = () => {
@@ -22,18 +16,8 @@ export const Form = () => {
   const slideVisible = menuStore((s) => s.slideVisible)
   const slidePlaying = slideStore((s) => s.isPlaying)
   const chatProcessingCount = homeStore((s) => s.chatProcessingCount)
-
   const [delayedText, setDelayedText] = useState('')
-
-  const { t } = useTranslation()
-  const handleSendChat = handleSendChatFn({
-    NotConnectedToExternalAssistant: t('NotConnectedToExternalAssistant'),
-    APIKeyNotEntered: t('APIKeyNotEntered'),
-  })
-  const handleReceiveTextFromWs = handleReceiveTextFromWsFn()
-
-  useYoutube({ handleSendChat })
-  useWebSocket({ handleReceiveTextFromWs })
+  const handleSendChat = handleSendChatFn()
 
   useEffect(() => {
     // テキストと画像がそろったら、チャットを送信
@@ -45,7 +29,10 @@ export const Form = () => {
 
   const hookSendChat = useCallback(
     (text: string) => {
-      homeStore.setState({ triggerShutter: true })
+      // すでにmodalImageが存在する場合は、Webcamのキャプチャーをスキップ
+      if (!homeStore.getState().modalImage) {
+        homeStore.setState({ triggerShutter: true })
+      }
 
       // MENUの中でshowCameraがtrueの場合、画像が取得されるまで待機
       if (webcamStatus || captureStatus) {
@@ -58,15 +45,15 @@ export const Form = () => {
     [handleSendChat, webcamStatus, captureStatus, setDelayedText]
   )
 
-  useEffect(() => {
-    console.log('chatProcessingCount:', chatProcessingCount)
-  }, [chatProcessingCount])
-
   return slideMode &&
     slideVisible &&
-    (slidePlaying || chatProcessingCount !== 0) ? (
+    slidePlaying &&
+    chatProcessingCount !== 0 ? (
     <SlideText />
   ) : (
-    <MessageInputContainer onChatProcessStart={hookSendChat} />
+    <>
+      <PresetQuestionButtons onSelectQuestion={hookSendChat} />
+      <MessageInputContainer onChatProcessStart={hookSendChat} />
+    </>
   )
 }

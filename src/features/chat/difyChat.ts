@@ -1,6 +1,7 @@
 import settingsStore from '@/features/stores/settings'
 import { Message } from '../messages/messages'
 import i18next from 'i18next'
+import toastStore from '@/features/stores/toast'
 
 function handleApiError(errorCode: string): string {
   const languageCode = settingsStore.getState().selectLanguage
@@ -39,56 +40,72 @@ export async function getDifyChatResponseStream(
 
     return new ReadableStream({
       async start(controller) {
-        if (!response.body) {
-          throw new Error('API response from Dify is empty', {
-            cause: { errorCode: 'AIAPIError' },
-          })
-        }
-
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder('utf-8')
-
+        let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
         try {
+          if (!response.body) {
+            throw new Error('API response from Dify is empty', {
+              cause: { errorCode: 'AIAPIError' },
+            })
+          }
+
+          reader = response.body.getReader()
+          const decoder = new TextDecoder('utf-8')
+          let buffer = ''
+
           while (true) {
             const { done, value } = await reader.read()
             if (done) break
-            const textChunk = decoder.decode(value, { stream: true })
-            const messages = textChunk
-              .split('\n')
-              .filter((line) => line.startsWith('data:'))
-            messages.forEach((message) => {
-              const data = JSON.parse(message.slice(5)) // Remove 'data:' prefix
-              if (data.event === 'agent_message' || data.event === 'message') {
-                controller.enqueue(data.answer)
-                settingsStore.setState({
-                  difyConversationId: data.conversation_id,
-                })
+            buffer += decoder.decode(value, { stream: true })
+
+            // 改行で分割し、最後の不完全な行をバッファに保持
+            let lines = buffer.split('\n')
+            buffer = lines.pop() || ''
+
+            lines.forEach((line) => {
+              if (line.startsWith('data:')) {
+                const jsonStr = line.slice(5) // 'data:' プレフィックスを除去
+                try {
+                  const data = JSON.parse(jsonStr)
+                  if (
+                    data.event === 'agent_message' ||
+                    data.event === 'message'
+                  ) {
+                    controller.enqueue(data.answer)
+                    settingsStore.setState({
+                      difyConversationId: data.conversation_id,
+                    })
+                  }
+                } catch (error) {
+                  console.error('Error parsing JSON:', error)
+                }
               }
             })
           }
         } catch (error) {
           console.error(`Error fetching Dify API response:`, error)
 
-          return new ReadableStream({
-            start(controller) {
-              const errorMessage = handleApiError('AIAPIError')
-              controller.enqueue(errorMessage)
-              controller.close()
-            },
+          toastStore.getState().addToast({
+            message: i18next.t('Errors.AIAPIError'),
+            type: 'error',
+            tag: 'dify-api-error',
           })
         } finally {
           controller.close()
-          reader.releaseLock()
+          if (reader) {
+            reader.releaseLock()
+          }
         }
       },
     })
   } catch (error: any) {
-    const errorMessage = handleApiError(error.cause.errorCode)
-    return new ReadableStream({
-      start(controller) {
-        controller.enqueue(errorMessage)
-        controller.close()
-      },
+    const errorMessage = handleApiError(
+      error.cause ? error.cause.errorCode : 'AIAPIError'
+    )
+    toastStore.getState().addToast({
+      message: errorMessage,
+      type: 'error',
+      tag: 'dify-api-error',
     })
+    throw error
   }
 }

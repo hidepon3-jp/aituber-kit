@@ -10,6 +10,7 @@ import {
 } from '@/features/youtube/conversationContinuityFunctions'
 import { processAIResponse } from '../chat/handlers'
 import homeStore from '@/features/stores/home'
+import { messageSelectors } from '../messages/messageSelectors'
 
 export const getLiveChatId = async (
   liveId: string,
@@ -92,16 +93,12 @@ const retrieveLiveComments = async (
   return comments
 }
 
-const preProcessAIResponse = async (messages: Message[]) => {
-  const hs = homeStore.getState()
-  await processAIResponse(hs.chatLog, messages)
-}
-
 export const fetchAndProcessComments = async (
   handleSendChat: (text: string) => void
 ): Promise<void> => {
   const ss = settingsStore.getState()
   const hs = homeStore.getState()
+  const chatLog = messageSelectors.getTextAndImageMessages(hs.chatLog)
 
   try {
     const liveChatId = await getLiveChatId(ss.youtubeLiveId, ss.youtubeApiKey)
@@ -114,13 +111,13 @@ export const fetchAndProcessComments = async (
         ss.conversationContinuityMode
       ) {
         const isContinuationNeeded =
-          await checkIfResponseContinuationIsRequired(hs.chatLog)
+          await checkIfResponseContinuationIsRequired(chatLog)
         if (isContinuationNeeded) {
           const continuationMessage = await getMessagesForContinuation(
             ss.systemPrompt,
-            hs.chatLog
+            chatLog
           )
-          preProcessAIResponse(continuationMessage)
+          processAIResponse(continuationMessage)
           settingsStore.setState({
             youtubeContinuationCount: ss.youtubeContinuationCount + 1,
           })
@@ -146,7 +143,7 @@ export const fetchAndProcessComments = async (
         settingsStore.setState({ youtubeSleepMode: false })
         let selectedComment = ''
         if (ss.conversationContinuityMode) {
-          selectedComment = await getBestComment(hs.chatLog, youtubeComments)
+          selectedComment = await getBestComment(chatLog, youtubeComments)
         } else {
           selectedComment =
             youtubeComments[Math.floor(Math.random() * youtubeComments.length)]
@@ -165,26 +162,26 @@ export const fetchAndProcessComments = async (
             // 会話の続きを生成
             const continuationMessage = await getMessagesForContinuation(
               ss.systemPrompt,
-              hs.chatLog
+              chatLog
             )
-            preProcessAIResponse(continuationMessage)
+            processAIResponse(continuationMessage)
           } else if (noCommentCount === 3) {
             // 新しいトピックを生成
-            const anotherTopic = await getAnotherTopic(hs.chatLog)
+            const anotherTopic = await getAnotherTopic(chatLog)
             console.log('anotherTopic:', anotherTopic)
             const newTopicMessage = await getMessagesForNewTopic(
               ss.systemPrompt,
-              hs.chatLog,
+              chatLog,
               anotherTopic
             )
-            preProcessAIResponse(newTopicMessage)
+            processAIResponse(newTopicMessage)
           } else if (noCommentCount === 6) {
             // スリープモードにする
             const messagesForSleep = await getMessagesForSleep(
               ss.systemPrompt,
-              hs.chatLog
+              chatLog
             )
-            preProcessAIResponse(messagesForSleep)
+            processAIResponse(messagesForSleep)
             settingsStore.setState({ youtubeSleepMode: true })
           }
         }

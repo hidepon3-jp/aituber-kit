@@ -1,71 +1,106 @@
-import { Language } from '@/features/constants/settings'
 import homeStore from '@/features/stores/home'
 import settingsStore from '@/features/stores/settings'
-import englishToJapanese from '@/utils/englishToJapanese.json'
+import { AIVoice } from '@/features/constants/settings'
 import { wait } from '@/utils/wait'
-import { Screenplay, Talk } from './messages'
+import { Talk } from './messages'
 import { synthesizeStyleBertVITS2Api } from './synthesizeStyleBertVITS2'
-import { synthesizeVoiceApi } from './synthesizeVoice'
+import { synthesizeVoiceKoeiromapApi } from './synthesizeVoiceKoeiromap'
 import { synthesizeVoiceElevenlabsApi } from './synthesizeVoiceElevenlabs'
 import { synthesizeVoiceGoogleApi } from './synthesizeVoiceGoogle'
+import { synthesizeVoiceVoicevoxApi } from './synthesizeVoiceVoicevox'
+import { synthesizeVoiceAivisSpeechApi } from './synthesizeVoiceAivisSpeech'
+import { synthesizeVoiceGSVIApi } from './synthesizeVoiceGSVI'
+import { synthesizeVoiceOpenAIApi } from './synthesizeVoiceOpenAI'
+import { synthesizeVoiceAzureOpenAIApi } from './synthesizeVoiceAzureOpenAI'
+import toastStore from '@/features/stores/toast'
+import i18next from 'i18next'
+import { SpeakQueue } from './speakQueue'
+import { synthesizeVoiceNijivoiceApi } from './synthesizeVoiceNijivoice'
+import { Live2DHandler } from './live2dHandler'
+import {
+  asyncConvertEnglishToJapaneseReading,
+  containsEnglish,
+} from '@/utils/textProcessing'
 
-interface EnglishToJapanese {
-  [key: string]: string
+const speakQueue = SpeakQueue.getInstance()
+
+export function preprocessMessage(
+  message: string,
+  settings: ReturnType<typeof settingsStore.getState>
+): string | null {
+  // 前後の空白を削除
+  let processed: string | null = message.trim()
+  if (!processed) return null
+
+  // 絵文字を削除 (これを先に行うことで変換対象のテキスト量を減らす)
+  processed = processed.replace(
+    /[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F1E0}-\u{1F1FF}]/gu,
+    ''
+  )
+
+  // 発音として不適切な記号のみで構成されているかチェック
+  // 感嘆符、疑問符、句読点、括弧類、引用符、数学記号、その他一般的な記号を含む
+  const isOnlySymbols: boolean =
+    /^[!?.,。、．，'"(){}[\]<>+=\-*\/\\|;:@#$%^&*_~！？（）「」『』【】〔〕［］｛｝〈〉《》｢｣。、．，：；＋－＊／＝＜＞％＆＾｜～＠＃＄＿"　]+$/.test(
+      processed
+    )
+
+  // 空文字列の場合はnullを返す
+  if (processed === '' || isOnlySymbols) return null
+
+  // 英語から日本語への変換は次の条件のみ実行
+  // 1. 設定でオンになっている
+  // 2. 言語が日本語
+  // 3. テキストに英語のような文字が含まれている場合のみ
+  if (
+    settings.changeEnglishToJapanese &&
+    settings.selectLanguage === 'ja' &&
+    containsEnglish(processed)
+  ) {
+    // この時点で処理済みのテキストを返す（後で非同期で変換処理を完了する）
+    return processed
+  }
+
+  // 変換不要な場合はそのまま返す
+  return processed
 }
 
-const VOICE_VOX_API_URL = 'http://localhost:50021'
-const typedEnglishToJapanese = englishToJapanese as EnglishToJapanese
+async function synthesizeVoice(
+  talk: Talk,
+  voiceType: AIVoice
+): Promise<ArrayBuffer | null> {
+  const ss = settingsStore.getState()
 
-const createSpeakCharacter = () => {
-  let lastTime = 0
-  let prevFetchPromise: Promise<unknown> = Promise.resolve()
-  let prevSpeakPromise: Promise<unknown> = Promise.resolve()
+  if (ss.audioMode) {
+    return null
+  }
 
-  return (
-    screenplay: Screenplay,
-    onStart?: () => void,
-    onComplete?: () => void
-  ) => {
-    const ss = settingsStore.getState()
-    onStart?.()
-
-    if (ss.changeEnglishToJapanese && ss.selectLanguage === 'ja') {
-      // 英単語を日本語で読み上げる
-      screenplay.talk.message = convertEnglishToJapaneseReading(
-        screenplay.talk.message
-      )
-    }
-
-    const fetchPromise = prevFetchPromise.then(async () => {
-      const now = Date.now()
-      if (now - lastTime < 1000) {
-        await wait(1000 - (now - lastTime))
-      }
-      let buffer
-      if (ss.selectVoice == 'koeiromap') {
-        buffer = await fetchAudio(screenplay.talk, ss.koeiromapKey).catch(
-          () => null
+  try {
+    switch (voiceType) {
+      case 'koeiromap':
+        return await synthesizeVoiceKoeiromapApi(
+          talk,
+          ss.koeiromapKey,
+          ss.koeiroParam
         )
-      } else if (ss.selectVoice == 'voicevox') {
-        buffer = await fetchAudioVoiceVox(
-          screenplay.talk,
+      case 'voicevox':
+        return await synthesizeVoiceVoicevoxApi(
+          talk,
           ss.voicevoxSpeaker,
           ss.voicevoxSpeed,
           ss.voicevoxPitch,
-          ss.voicevoxIntonation
-        ).catch(() => null)
-      } else if (ss.selectVoice == 'google') {
-        const googleTtsTypeByLang = getGoogleTtsType(
+          ss.voicevoxIntonation,
+          ss.voicevoxServerUrl
+        )
+      case 'google':
+        return await synthesizeVoiceGoogleApi(
+          talk,
           ss.googleTtsType,
           ss.selectLanguage
         )
-        buffer = await fetchAudioGoogle(
-          screenplay.talk,
-          googleTtsTypeByLang
-        ).catch(() => null)
-      } else if (ss.selectVoice == 'stylebertvits2') {
-        buffer = await fetchAudioStyleBertVITS2(
-          screenplay.talk,
+      case 'stylebertvits2':
+        return await synthesizeStyleBertVITS2Api(
+          talk,
           ss.stylebertvits2ServerUrl,
           ss.stylebertvits2ApiKey,
           ss.stylebertvits2ModelId,
@@ -73,251 +108,284 @@ const createSpeakCharacter = () => {
           ss.stylebertvits2SdpRatio,
           ss.stylebertvits2Length,
           ss.selectLanguage
-        ).catch(() => null)
-      } else if (ss.selectVoice == 'gsvitts') {
-        buffer = await fetchAudioVoiceGSVIApi(
-          screenplay.talk,
+        )
+      case 'aivis_speech':
+        return await synthesizeVoiceAivisSpeechApi(
+          talk,
+          ss.aivisSpeechSpeaker,
+          ss.aivisSpeechSpeed,
+          ss.aivisSpeechPitch,
+          ss.aivisSpeechIntonation,
+          ss.aivisSpeechServerUrl
+        )
+      case 'gsvitts':
+        return await synthesizeVoiceGSVIApi(
+          talk,
           ss.gsviTtsServerUrl,
           ss.gsviTtsModelId,
           ss.gsviTtsBatchSize,
           ss.gsviTtsSpeechRate
-        ).catch(() => null)
-      } else if (ss.selectVoice == 'elevenlabs') {
-        buffer = await fetchAudioElevenlabs(
-          screenplay.talk,
+        )
+      case 'elevenlabs':
+        return await synthesizeVoiceElevenlabsApi(
+          talk,
           ss.elevenlabsApiKey,
           ss.elevenlabsVoiceId,
           ss.selectLanguage
-        ).catch(() => null)
+        )
+      case 'openai':
+        return await synthesizeVoiceOpenAIApi(
+          talk,
+          ss.openaiKey,
+          ss.openaiTTSVoice,
+          ss.openaiTTSModel,
+          ss.openaiTTSSpeed
+        )
+      case 'azure':
+        return await synthesizeVoiceAzureOpenAIApi(
+          talk,
+          ss.azureTTSKey || ss.azureKey,
+          ss.azureTTSEndpoint || ss.azureEndpoint,
+          ss.openaiTTSVoice,
+          ss.openaiTTSSpeed
+        )
+      case 'nijivoice':
+        return await synthesizeVoiceNijivoiceApi(
+          talk,
+          ss.nijivoiceApiKey,
+          ss.nijivoiceActorId,
+          ss.nijivoiceSpeed,
+          ss.nijivoiceEmotionalLevel,
+          ss.nijivoiceSoundDuration
+        )
+      default:
+        return null
+    }
+  } catch (error) {
+    handleTTSError(error, voiceType)
+    return null
+  }
+}
+
+const createSpeakCharacter = () => {
+  let lastTime = 0
+  let prevFetchPromise: Promise<unknown> = Promise.resolve()
+
+  return (
+    sessionId: string,
+    talk: Talk,
+    onStart?: () => void,
+    onComplete?: () => void
+  ) => {
+    let called = false
+    const ss = settingsStore.getState()
+    onStart?.()
+
+    const initialToken = SpeakQueue.currentStopToken
+
+    speakQueue.checkSessionId(sessionId)
+
+    // 停止後なら即完了
+    if (SpeakQueue.currentStopToken !== initialToken) {
+      if (onComplete && !called) {
+        called = true
+        onComplete()
       }
-      lastTime = Date.now()
-      return buffer
+      return
+    }
+
+    const processedMessage = preprocessMessage(talk.message, ss)
+    if (!processedMessage && !talk.buffer) {
+      if (onComplete && !called) {
+        called = true
+        onComplete()
+      }
+      return
+    }
+
+    if (processedMessage) {
+      talk.message = processedMessage
+    } else if (talk.buffer) {
+      talk.message = ''
+    }
+
+    let isNeedDecode = true
+
+    const processAndSynthesizePromise = prevFetchPromise.then(async () => {
+      const now = Date.now()
+      if (now - lastTime < 1000) {
+        await wait(1000 - (now - lastTime))
+      }
+
+      // ボタン停止でキャンセルされた場合はここで終了
+      if (SpeakQueue.currentStopToken !== initialToken) {
+        return null
+      }
+
+      if (
+        processedMessage &&
+        ss.changeEnglishToJapanese &&
+        ss.selectLanguage === 'ja' &&
+        containsEnglish(processedMessage)
+      ) {
+        try {
+          const convertedText =
+            await asyncConvertEnglishToJapaneseReading(processedMessage)
+          talk.message = convertedText
+        } catch (error) {
+          console.error('Error converting English to Japanese:', error)
+        }
+      }
+
+      let buffer
+      try {
+        if (talk.message == '' && talk.buffer) {
+          buffer = talk.buffer
+          isNeedDecode = false
+        } else if (talk.message !== '') {
+          buffer = await synthesizeVoice(talk, ss.selectVoice)
+        } else {
+          buffer = null
+        }
+      } catch (error) {
+        handleTTSError(error, ss.selectVoice)
+        return null
+      } finally {
+        lastTime = Date.now()
+      }
+
+      // 合成開始前に取得した initialToken をそのまま保持する
+      const tokenAtStart = initialToken
+      return { buffer, isNeedDecode, tokenAtStart }
     })
 
-    prevFetchPromise = fetchPromise
-    prevSpeakPromise = Promise.all([fetchPromise, prevSpeakPromise]).then(
-      ([audioBuffer]) => {
-        if (!audioBuffer) {
+    prevFetchPromise = processAndSynthesizePromise.catch((err) => {
+      console.error('Speak chain error (swallowed):', err)
+      // 後続処理を止めないために resolve で返す
+      return null
+    })
+
+    processAndSynthesizePromise
+      .then((result) => {
+        if (!result || !result.buffer) {
+          if (onComplete && !called) {
+            called = true
+            onComplete()
+          }
           return
         }
-        const hs = homeStore.getState()
-        return hs.viewer.model?.speak(audioBuffer, screenplay)
-      }
-    )
-    prevSpeakPromise.then(() => {
-      onComplete?.()
-    })
+
+        // Stop ボタン後に生成された音声でないか確認
+        if (result.tokenAtStart !== SpeakQueue.currentStopToken) {
+          // 生成中に Stop された => 破棄
+          if (onComplete && !called) {
+            called = true
+            onComplete()
+          }
+          return
+        }
+
+        // Wrap the onComplete passed to speakQueue.addTask
+        const guardedOnComplete = () => {
+          if (onComplete && !called) {
+            called = true
+            onComplete()
+          }
+        }
+
+        speakQueue.addTask({
+          sessionId,
+          audioBuffer: result.buffer,
+          talk,
+          isNeedDecode: result.isNeedDecode,
+          onComplete: guardedOnComplete, // Pass the guarded function
+        })
+      })
+      .catch((error) => {
+        console.error('Error in processAndSynthesizePromise chain:', error)
+        if (onComplete && !called) {
+          called = true
+          onComplete()
+        }
+      })
   }
 }
 
-function convertEnglishToJapaneseReading(text: string): string {
-  const sortedKeys = Object.keys(typedEnglishToJapanese).sort(
-    (a, b) => b.length - a.length
-  )
-
-  return sortedKeys.reduce((result, englishWord) => {
-    const japaneseReading = typedEnglishToJapanese[englishWord]
-    const regex = new RegExp(`\\b${englishWord}\\b`, 'gi')
-    return result.replace(regex, japaneseReading)
-  }, text)
-}
-
-function getGoogleTtsType(
-  googleTtsType: string,
-  selectLanguage: Language
-): string {
-  if (googleTtsType) return googleTtsType
-  return getGppgleTtsType(selectLanguage) || ''
-}
-
-function getGppgleTtsType(selectLanguage: Language): string {
-  switch (selectLanguage) {
-    case 'ja':
-      return 'ja-JP-Standard-B'
-    case 'en':
-      return 'en-US-Neural2-F'
-    case 'zh':
-      return 'cmn-TW-Standard-A'
-    default:
-      return 'en-US-Neural2-F'
+export function handleTTSError(error: unknown, serviceName: string): void {
+  let message: string
+  if (error instanceof Error) {
+    message = error.message
+  } else if (typeof error === 'string') {
+    message = error
+  } else {
+    message = i18next.t('Errors.UnexpectedError')
   }
+  const errorMessage = i18next.t('Errors.TTSServiceError', {
+    serviceName,
+    message,
+  })
+
+  toastStore.getState().addToast({
+    message: errorMessage,
+    type: 'error',
+    duration: 5000,
+    tag: 'tts-error',
+  })
+
+  console.error(errorMessage)
 }
 
 export const speakCharacter = createSpeakCharacter()
 
-export const fetchAudio = async (
-  talk: Talk,
-  apiKey: string
-): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoiceApi(
-    talk.message,
-    talk.speakerX,
-    talk.speakerY,
-    talk.style,
-    apiKey
-  )
-  const url = ttsVoice.audio
-
-  if (url == null) {
-    throw new Error('Something went wrong')
-  }
-
-  const resAudio = await fetch(url)
-  const buffer = await resAudio.arrayBuffer()
-  return buffer
+export const testVoiceVox = async (customText?: string) => {
+  await testVoice('voicevox', customText)
 }
 
-export const fetchAudioVoiceVox = async (
-  talk: Talk,
-  speaker: string,
-  speed: number,
-  pitch: number,
-  intonation: number
-): Promise<ArrayBuffer> => {
-  console.log('speakerId:', speaker)
-  const ttsQueryResponse = await fetch(
-    VOICE_VOX_API_URL +
-      '/audio_query?speaker=' +
-      speaker +
-      '&text=' +
-      encodeURIComponent(talk.message),
-    {
-      method: 'POST',
-    }
-  )
-  if (!ttsQueryResponse.ok) {
-    throw new Error('Failed to fetch TTS query.')
-  }
-  const ttsQueryJson = await ttsQueryResponse.json()
-
-  ttsQueryJson['speedScale'] = speed
-  ttsQueryJson['pitchScale'] = pitch
-  ttsQueryJson['intonationScale'] = intonation
-  const synthesisResponse = await fetch(
-    VOICE_VOX_API_URL + '/synthesis?speaker=' + speaker,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Transfer-Encoding': 'chunked',
-      },
-      body: JSON.stringify(ttsQueryJson),
-    }
-  )
-  if (!synthesisResponse.ok) {
-    throw new Error('Failed to fetch TTS synthesis result.')
-  }
-  const blob = await synthesisResponse.blob()
-  const buffer = await blob.arrayBuffer()
-  return buffer
+export const testAivisSpeech = async (customText?: string) => {
+  await testVoice('aivis_speech', customText)
 }
 
-export const fetchAudioGoogle = async (
-  talk: Talk,
-  ttsType: string
-): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoiceGoogleApi(talk.message, ttsType)
-  const uint8Array = new Uint8Array(ttsVoice.audio.data)
-  const arrayBuffer: ArrayBuffer = uint8Array.buffer
-
-  return arrayBuffer
-}
-
-export const fetchAudioStyleBertVITS2 = async (
-  talk: Talk,
-  stylebertvits2ServerUrl: string,
-  stylebertvits2ApiKey: string,
-  stylebertvits2ModelId: string,
-  stylebertvits2Style: string,
-  stylebertvits2SdpRatio: number,
-  stylebertvits2Length: number,
-  selectLanguage: Language
-): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeStyleBertVITS2Api(
-    talk.message,
-    stylebertvits2ServerUrl,
-    stylebertvits2ApiKey,
-    stylebertvits2ModelId,
-    stylebertvits2Style,
-    stylebertvits2SdpRatio,
-    stylebertvits2Length,
-    selectLanguage
-  )
-  return ttsVoice
-}
-
-export const testVoice = async () => {
+export const testVoice = async (voiceType: AIVoice, customText?: string) => {
   const ss = settingsStore.getState()
+
+  const defaultMessages: Record<AIVoice, string> = {
+    voicevox: 'ボイスボックスを使用します',
+    aivis_speech: 'AivisSpeechを使用します',
+    koeiromap: 'コエイロマップを使用します',
+    google: 'Google Text-to-Speechを使用します',
+    stylebertvits2: 'StyleBertVITS2を使用します',
+    gsvitts: 'GSVI TTSを使用します',
+    elevenlabs: 'ElevenLabsを使用します',
+    openai: 'OpenAI TTSを使用します',
+    azure: 'Azure TTSを使用します',
+    nijivoice: 'にじボイスを使用します',
+  }
+
+  const message = customText || defaultMessages[voiceType]
+
   const talk: Talk = {
-    message: 'ボイスボックスを使用します',
-    speakerX: 0,
-    speakerY: 0,
-    style: 'talk',
+    message,
+    emotion: 'neutral',
   }
-  const buffer = await fetchAudioVoiceVox(
-    talk,
-    ss.voicevoxSpeaker,
-    ss.voicevoxSpeed,
-    ss.voicevoxPitch,
-    ss.voicevoxIntonation
-  ).catch(() => null)
-  if (buffer) {
-    const screenplay: Screenplay = {
-      expression: 'neutral',
-      talk: talk,
+
+  try {
+    const currentVoice = ss.selectVoice
+    settingsStore.setState({ selectVoice: voiceType })
+
+    const buffer = await synthesizeVoice(talk, voiceType)
+
+    settingsStore.setState({ selectVoice: currentVoice })
+
+    if (buffer) {
+      if (ss.modelType === 'vrm') {
+        const hs = homeStore.getState()
+        await hs.viewer.model?.speak(buffer, talk)
+      } else if (ss.modelType === 'live2d') {
+        Live2DHandler.speak(buffer, talk)
+      }
     }
-    const hs = homeStore.getState()
-    await hs.viewer.model?.speak(buffer, screenplay)
+  } catch (error) {
+    console.error(`Error testing ${voiceType} voice:`, error)
+    handleTTSError(error, voiceType)
   }
-}
-
-export const fetchAudioVoiceGSVIApi = async (
-  talk: Talk,
-  url: string,
-  character: string,
-  batchsize: number,
-  speed: number
-): Promise<ArrayBuffer> => {
-  const style = talk.style !== 'talk' ? talk.style : 'default'
-  const response = await fetch(url.replace(/\/$/, ''), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      character: character,
-      emotion: style,
-      text: talk.message,
-      batch_size: batchsize,
-      speed: speed.toString(),
-      stream: true,
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch TTS audio.')
-  }
-
-  const blob = await response.blob()
-  const buffer = await blob.arrayBuffer()
-  return buffer
-}
-
-export const fetchAudioElevenlabs = async (
-  talk: Talk,
-  apiKey: string,
-  voiceId: string,
-  language: Language
-): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoiceElevenlabsApi(
-    apiKey,
-    talk.message,
-    voiceId,
-    language
-  )
-
-  // const uint8Array = new Uint8Array(ttsVoice.audio);
-  const arrayBuffer: ArrayBuffer = ttsVoice.audio.buffer
-
-  return arrayBuffer
 }

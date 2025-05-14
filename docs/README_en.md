@@ -1,53 +1,127 @@
-<h1 align="center">
-  <img style="max-width: 100%;" src="./logo.png">
-</h1>
+# AITuberKit
+
+<img style="max-width: 100%;" src="../public/ogp.png">
+
+**Notice: This project has adopted a custom license from version v2.0.0 onwards. If you are using it for commercial purposes, please check the [Terms of Use](#terms-of-use) section.**
 
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Top Language" src="https://img.shields.io/github/languages/top/tegnike/aituber-kit"></a>
    <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tegnike/aituber-kit?sort=semver&color=orange">
-   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/tegnike/aituber-kit"></a>
+   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="License: Custom" src="https://img.shields.io/badge/License-Custom-blue"></a>
 </p>
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/tegnike/aituber-kit"></a>
+   <a href="https://coderabbit.ai/tegnike/aituber-kit"><img alt="CodeRabbit Pull Request Reviews" src="https://img.shields.io/coderabbit/prs/github/tegnike/aituber-kit?utm_source=oss&utm_medium=github&utm_campaign=tegnike%2Faituber-kit&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews"></a>
 </p>
 <p align="center">
    <a href="https://x.com/tegnike"><img alt="X (Twitter)" src="https://img.shields.io/badge/X-tegnike-1DA1F2?logo=x&style=flat&logoColor=white"/></a>
-   <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tegnike/aituber-kit?sort=semver&color=orange">
-   <a href="https://discord.gg/T96PTvrs"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
+   <a href="https://discord.gg/5rHEue52nZ"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
    <a href="https://github.com/sponsors/tegnike"><img alt="GitHub Sponsor" src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat&logo=github"/></a>
+   <a href="https://deepwiki.com/tegnike/aituber-kit"><img src="https://img.shields.io/badge/DeepWiki-tegnike%2Faituber--kit-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==" alt="DeepWiki"></a>
 </p>
 
+<div align="center">
+   <h3>
+      🌟 <a href="https://aituberkit.com">Demo Site</a> 🌟
+   </h3>
+</div>
+
+<div align="center">
+   <h3>
+      📚 <a href="https://docs.aituberkit.com/en/">Documentation Site</a> 📚
+   </h3>
+</div>
+
 <h3 align="center">
-   <a href="../README.md">【Japanese】</a>｜
-   <a href="./README_zh.md">【Chinese】</a>｜
-   <a href="./README_ko.md">【Korean】</a>
+   <a href="../README.md">日本語</a>｜
+   <a href="./README_zh.md">中文</a>｜
+   <a href="./README_ko.md">한국어</a>｜
+   <a href="./README_pl.md">Polski</a>
 </h3>
 
 ## Overview
 
-This repository has mainly the following 2 features:
+AITuberKit is an open-source toolkit that allows anyone to easily build a web application for chatting with AI characters. It features various extensions centered around interaction with AI characters and AITuber streaming functionality.
+It supports a wide range of AI services, character models, and voice synthesis engines, with high customization options centered around dialogue and AITuber streaming functionality.
 
-1. Conversation with AI character
-2. AITuber streaming
+<img src="./images/architecture_en.svg" alt="AITuberKit Architecture">
 
-I've written a detailed usage guide in the article below:
+For detailed usage and configuration instructions, please visit the [Documentation Site](https://docs.aituberkit.com/en/).
 
-[![You are AITuber Developer from Today | Nike-chan](https://github.com/tegnike/aituber-kit/assets/35606144/a958f505-72f9-4665-ab6c-b57b692bb166)](https://note.com/nike_cha_n/n/ne98acb25e00f)
+## Star History
 
-## Development Environment
+[![Star History Chart](https://api.star-history.com/svg?repos=tegnike/aituber-kit&type=Date)](https://star-history.com/#tegnike/aituber-kit&Date)
 
-This project is developed in the following environment:
+## Main Features
+
+### 1. Interaction with AI Characters
+
+- Easy conversation with AI characters using API keys for various LLMs
+- Multimodal support for recognizing camera footage and uploaded images to generate responses
+- Retention of recent conversations as memory
+
+### 2. AITuber Streaming
+
+- Retrieves YouTube stream comments for automatic responses from AI characters
+- Conversation continuation mode allows spontaneous speech even without comments
+- Feature to ignore comments starting with "#"
+
+### 3. Other Features
+
+- **External Integration Mode**: Connect with server applications via WebSocket for advanced functionality
+- **Slide Mode**: Mode where AI characters automatically present slides
+- **Realtime API**: Low-latency dialogue and function execution using OpenAI's Realtime API
+- **Audio Mode**: Natural voice dialogue utilizing OpenAI's Audio API features
+- **Message Reception Function**: Accept instructions from external sources through a dedicated API to make AI characters speak
+
+## Supported Models & Services
+
+### Character Models
+
+- **3D Models**: VRM files
+- **2D Models**: Live2D files (Cubism 3 and later)
+
+### Supported LLMs
+
+- OpenAI
+- Anthropic
+- Google Gemini
+- Azure OpenAI
+- Groq
+- Cohere
+- Mistral AI
+- Perplexity
+- Fireworks
+- Local LLM
+- Dify
+
+### Supported Voice Synthesis Engines
+
+- VOICEVOX
+- Koeiromap
+- Google Text-to-Speech
+- Style-Bert-VITS2
+- AivisSpeech
+- GSVI TTS
+- ElevenLabs
+- OpenAI
+- Azure OpenAI
+- Niji Voice
+
+## Quick Start
+
+### Development Environment
 
 - Node.js: ^20.0.0
-- npm: 10.8.1
+- npm: ^10.0.0
 
-## Common Preparations
+### Installation Steps
 
-1. Clone the repository to your local machine.
+1. Clone the repository locally.
 
 ```bash
 git clone https://github.com/tegnike/aituber-kit.git
@@ -71,110 +145,40 @@ npm install
 npm run dev
 ```
 
-5. Open the URL [http://localhost:3000](http://localhost:3000)
+5. Open the URL: [http://localhost:3000](http://localhost:3000)
 
-## Conversation with AI Character
+6. Create a .env file as needed.
 
-- This is a feature to converse with an AI character.
-- It is an extended feature of [pixiv/ChatVRM](https://github.com/pixiv/ChatVRM), which is the basis of this repository.
-- It can be tried relatively easily as long as you have an API key for various LLMs.
-- The recent conversation sentences are retained as memory.
-- It is multimodal, capable of recognizing images from the camera or uploaded images to generate responses.
+```bash
+cp .env.example .env
+```
 
-### Usage
+For detailed configuration and usage instructions, please visit the [Documentation Site](https://docs.aituberkit.com/en/).
 
-1. Enter your API key for various LLMs in the settings screen.
-   - OpenAI
-   - Anthropic
-   - Google Gemini
-   - Groq
-   - Local LLM (No API key is required, but a local API server needs to be running.)
-   - Dify Chatbot (No API key is required, but a local API server needs to be running.)
-2. Edit the character's setting prompt if necessary.
-3. Load a VRM file and background file if available.
-4. Select a speech synthesis engine and configure voice settings if necessary.
-   - For VOICEVOX, you can select a speaker from multiple options. The VOICEVOX app needs to be running beforehand.
-   - For Koeiromap, you can finely adjust the voice. An API key is required.
-   - For Google TTS, languages other than Japanese can also be selected. Credential information is required.
-   - For Style-Bert-VITS2, a local API server needs to be running.
-   - For GSVI TTS, a local API server needs to be running.
-   - ElevenLabs supports various language selection. Please enter the API key.
-5. Start conversing with the character from the input form. Microphone input is also possible.
+## ⚠️ Important Security Notice
 
-## AITuber Streaming
+This repository is intended for personal use and development in local environments, as well as commercial use with appropriate security measures. However, please note the following when deploying to a web environment:
 
-- It is possible to retrieve YouTube streaming comments and have the character speak.
-- A YouTube API key is required.
-- Comments starting with '#' are not read.
+- **API Key Handling**: The system is designed to call AI services (OpenAI, Anthropic, etc.) and TTS services via a backend server, so proper management of API keys is necessary.
 
-### Usage
+### For Production Use
 
-1. Turn on YouTube mode in the settings screen.
-2. Enter your YouTube API key and YouTube Live ID.
-3. Configure other settings the same way as "Conversation with AI Character".
-4. Start streaming on YouTube and confirm that the character reacts to comments.
-5. Turn on the conversation continuity mode to be able to speak even if there are no comments.
+When using in a production environment, we recommend one of the following approaches:
 
-## Other Features
+1. **Backend Server Implementation**: Manage API keys on the server side to avoid direct API access from clients
+2. **Appropriate Explanation to Users**: If users are using their own API keys, explain security considerations to them
+3. **Access Restriction Implementation**: Implement appropriate authentication and authorization mechanisms as needed
 
-### External Integration Mode (β version)
+## Sponsorship
 
-- You can send messages to the server app via WebSocket and get a response.
-- Unlike the above two, it does not complete within the front-end app, so the difficulty level is a bit higher.
-- ⚠ This mode is currently not fully maintained, so it may not work.
-
-#### Usage
-
-1. Start the server app and open the `ws://127.0.0.1:8000/ws` endpoint.
-2. Turn on WebSocket mode in the settings screen.
-3. Configure other settings the same way as "Conversation with AI Character".
-4. Wait for messages from the server app and confirm that the character reacts.
-
-#### Related
-
-- You can try it with the server app repository I created. [tegnike/aituber-server](https://github.com/tegnike/
-  aituber-server)
-- For detailed settings, please read "[Let's develop with a beautiful girl!! [Open Interpreter]](https://note.
-  com/nike_cha_n/n/nabcfeb7aaf3f)".
-
-### Slide Mode
-
-- This is a mode where the AI character automatically presents slides.
-- You need to prepare slides and script files in advance.
-
-#### Usage
-
-1. Proceed to the point where you can interact with the AI character.
-2. Place the slide folder and script file in the designated folder.
-3. Turn on Slide Mode in the settings screen.
-4. Press the Start Slide button to begin the presentation.
-
-## TIPS
-
-### VRM Model and Background Fixing Method
-
-- Change the VRM model data at `public/AvatarSample_B.vrm`. Do not change the name.
-- Change the background image at `public/bg-c.jpg`. Do not change the name.
-
-### Setting Environment Variables
-
-- Some configuration values can be referenced from the `.env` file contents.
-- If entered in the settings screen, that value takes precedence.
-
-### Other
-
-- Conversation history can be reset in the settings screen.
-- Various settings are stored in the browser.
-- Elements enclosed in code blocks are not read by TTS.
-
-## Seeking Sponsors
-
-We are seeking sponsors to continue our development efforts.<br>
-Your support will greatly contribute to the development and improvement of the AITuber Kit.
+We are seeking sponsors to continue development.<br>
+Your support greatly contributes to the development and improvement of AITuberKit.
 
 [![GitHub Sponsor](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=github)](https://github.com/sponsors/tegnike)
 
-### Our Supporters (in order of support)
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/fdanv1k6iz)
+
+### Contributors (in order of support)
 
 <p>
   <a href="https://github.com/morioki3" title="morioki3">
@@ -222,86 +226,78 @@ Your support will greatly contribute to the development and improvement of the A
   <a href="https://github.com/gijigae" title="gijigae">
     <img src="https://github.com/gijigae.png" width="40" height="40" alt="gijigae">
   </a>
+  <a href="https://github.com/takm-reason" title="takm-reason">
+    <img src="https://github.com/takm-reason.png" width="40" height="40" alt="takm-reason">
+  </a>
+  <a href="https://github.com/haoling" title="haoling">
+    <img src="https://github.com/haoling.png" width="40" height="40" alt="haoling">
+  </a>
+  <a href="https://github.com/FoundD-oka" title="FoundD-oka">
+    <img src="https://github.com/FoundD-oka.png" width="40" height="40" alt="FoundD-oka">
+  </a>
+  <a href="https://github.com/terisuke" title="terisuke">
+    <img src="https://github.com/terisuke.png" width="40" height="40" alt="terisuke">
+  </a>
+  <a href="https://github.com/konpeita" title="konpeita">
+    <img src="https://github.com/konpeita.png" width="40" height="40" alt="konpeita">
+  </a>
+  <a href="https://github.com/MojaX2" title="MojaX2">
+    <img src="https://github.com/MojaX2.png" width="40" height="40" alt="MojaX2">
+  </a>
+  <a href="https://github.com/micchi99" title="micchi99">
+    <img src="https://github.com/micchi99.png" width="40" height="40" alt="micchi99">
+  </a>
+  <a href="https://github.com/nekomeowww" title="nekomeowww">
+    <img src="https://github.com/nekomeowww.png" width="40" height="40" alt="nekomeowww">
+  </a>
+  <a href="https://github.com/yfuku" title="yfuku">
+    <img src="https://github.com/yfuku.png" width="40" height="40" alt="yfuku">
+  </a>
+  <a href="https://x.com/8484ff_42" title="8484ff_42">
+    <img src="https://pbs.twimg.com/profile_images/1869378029786656768/m_K1Cjqx_normal.jpg" width="40" height="40" alt="8484ff_42">
+  </a>
+  <a href="https://github.com/sher1ock-jp" title="sher1ock-jp">
+    <img src="https://github.com/sher1ock-jp.png" width="40" height="40" alt="sher1ock-jp">
+  </a>
+  <a href="https://github.com/uwaguchi" title="uwaguchi">
+    <img src="https://github.com/uwaguchi.png" width="40" height="40" alt="uwaguchi">
+  </a>
+  <a href="https://x.com/M1RA_A_Project" title="M1RA_A_Project">
+    <img src="https://pbs.twimg.com/profile_images/1903385253504507904/ceBSG9Wl_400x400.jpg" width="40" height="40" alt="M1RA_A_Project">
+  </a>
+  <a href="https://github.com/teruPP" title="teruPP">
+    <img src="https://github.com/teruPP.png" width="40" height="40" alt="teruPP">
+  </a>
 </p>
 
 Plus multiple private sponsors
 
-## Usage Agreement
+## Terms of Use
 
-- The license adheres to [pixiv/ChatVRM](https://github.com/pixiv/ChatVRM) and is under the MIT License.
-- [Logo Usage Agreement](./logo_licence_en.md)
-- [VRM Model Usage Agreement](./vrm_licence_en.md)
+### License
 
-## Tips for Contributors
+This project has adopted a **custom license** from version v2.0.0 onwards.
 
-### How to Add a New Language
+- **Free Use**
 
-To add a new language to the project, follow these steps:
+  - Free for personal use, educational purposes, and non-profit purposes that are not for commercial purposes.
 
-1. **Add Language File**:
+- **Commercial License**
+  - A separate commercial license is required for commercial use.
+  - For details, please check [About the License](./license_en.md).
 
-   - Create a new language directory in the `locales` directory and create a `translation.json` file inside it.
-   - Example: `locales/fr/translation.json` (for French)
+### Others
 
-2. **Add Translations**:
+- [Logo Usage Terms](./logo_licence_en.md)
+- [VRM and Live2D Model Usage Terms](./character_model_licence_en.md)
 
-   - Add translations to the `translation.json` file, referring to existing language files.
+## Priority Implementation
 
-3. **Update Language Settings**:
+This project accepts paid priority implementation of features.
 
-   - Open the `src/lib/i18n.js` file and add the new language to the `resources` object.
+- Features requested by companies or individuals can be implemented with priority.
+- Implemented features will be published as part of this OSS project.
+- Fees are individually quoted based on the complexity of the feature and the time required for implementation.
+- This priority implementation is separate from the commercial license. If you want to use the implemented features for commercial purposes, you need to obtain a commercial license separately.
 
-   ```javascript:src/lib/i18n.js
-   resources: {
-     ...,
-     fr: {  // New language code
-       translation: require("../../locales/fr/translation.json"),
-     },
-   },
-   ```
-
-4. **Add Language Selection Option**:
-
-   - Add a new language option to the appropriate part of the UI (e.g., language selection dropdown in the settings screen) so users can select the language.
-
-   ```typescript:src/components/settings.tsx
-   <select>
-     ...,
-     <option value="FR">French - Français</option>
-   </select>
-   ```
-
-5. **Test**:
-   - Test if the application displays correctly in the new language.
-
-This will add support for the new language to the project.
-
-#### Adding Voice Language Code
-
-- You also need to add support for the voice language code.
-- Add the new language code to the `getVoiceLanguageCode` function in the `Introduction` component.
-
-```typescript:nike-ChatVRM/src/components/introduction.tsx
-const getVoiceLanguageCode = (selectLanguage: string) => {
-  switch (selectLanguage) {
-    case 'JP':
-      return 'ja-JP';
-    case 'EN':
-      return 'en-US';
-    case 'ZH':
-      return 'zh-TW';
-    case 'zh-TW':
-      return 'zh-TW';
-    case 'KO':
-      return 'ko-KR';
-    case 'FR':
-      return 'fr-FR';
-    default:
-      return 'ja-JP';
-  }
-}
-```
-
-#### Adding README
-
-- Add a new language README (`README_fr.md`), logo usage terms (`logo_licence_fr.md`), and VRM model usage terms (`vrm_licence_fr.md`) to the `docs` directory.
+For details, please contact support@aituberkit.com.

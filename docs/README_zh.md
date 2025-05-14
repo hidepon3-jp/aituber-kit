@@ -1,178 +1,184 @@
-<h1 align="center">
-  <img style="max-width: 100%;" src="./logo.png">
-</h1>
+# AITuberKit
+
+<img style="max-width: 100%;" src="../public/ogp.png">
+
+**通知：本项目从版本v2.0.0开始采用自定义许可证。如果您出于商业目的使用，请查看[使用条款](#使用条款)部分。**
 
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit"><img alt="GitHub Top Language" src="https://img.shields.io/github/languages/top/tegnike/aituber-kit"></a>
    <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tegnike/aituber-kit?sort=semver&color=orange">
-   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/tegnike/aituber-kit"></a>
+   <a href="https://github.com/tegnike/aituber-kit/blob/main/LICENSE"><img alt="License: Custom" src="https://img.shields.io/badge/License-Custom-blue"></a>
 </p>
 <p align="center">
    <a href="https://github.com/tegnike/aituber-kit/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/tegnike/aituber-kit"></a>
    <a href="https://github.com/tegnike/aituber-kit/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/tegnike/aituber-kit"></a>
+   <a href="https://coderabbit.ai/tegnike/aituber-kit"><img alt="CodeRabbit Pull Request Reviews" src="https://img.shields.io/coderabbit/prs/github/tegnike/aituber-kit?utm_source=oss&utm_medium=github&utm_campaign=tegnike%2Faituber-kit&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews"></a>
 </p>
 <p align="center">
    <a href="https://x.com/tegnike"><img alt="X (Twitter)" src="https://img.shields.io/badge/X-tegnike-1DA1F2?logo=x&style=flat&logoColor=white"/></a>
-   <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/tegnike/aituber-kit?sort=semver&color=orange">
-   <a href="https://discord.gg/T96PTvrs"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
+   <a href="https://discord.gg/5rHEue52nZ"><img alt="Discord" src="https://img.shields.io/badge/Discord-AITuberKit-7289DA?logo=discord&style=flat&logoColor=white"/></a>
    <a href="https://github.com/sponsors/tegnike"><img alt="GitHub Sponsor" src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat&logo=github"/></a>
+   <a href="https://deepwiki.com/tegnike/aituber-kit"><img src="https://img.shields.io/badge/DeepWiki-tegnike%2Faituber--kit-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==" alt="DeepWiki"></a>
 </p>
 
+<div align="center">
+   <h3>
+      🌟 <a href="https://aituberkit.com">演示网站</a> 🌟
+   </h3>
+</div>
+
+<div align="center">
+   <h3>
+      📚 <a href="https://docs.aituberkit.com/zh/">文档网站</a> 📚
+   </h3>
+</div>
+
 <h3 align="center">
-   <a href="../README.md">【日本語】</a>｜
-   <a href="./README_en.md">【英語】</a>｜
-   <a href="./README_ko.md">【韓語】</a>
+   <a href="../README.md">日本語</a>｜
+   <a href="./README_en.md">English</a>｜
+   <a href="./README_ko.md">한국어</a>｜
+   <a href="./docs/README_pl.md">Polski</a>
 </h3>
 
-## 概覽
+## 概述
 
-此存儲庫主要具有以下2個功能：
+AITuberKit是一个开源工具包，任何人都可以轻松构建能与AI角色聊天的Web应用程序。<br>
+它支持丰富的AI服务、角色模型和语音合成引擎，提供高度可定制的对话功能和AITuber直播功能，以及各种扩展模式。
 
-1. 與AI角色對話
-2. AITuber直播
+<img src="./images/architecture_en.svg" alt="AITuberKit Architecture">
 
-我在下面的文章中寫了詳細的使用指南：
+有关详细使用方法和配置说明，请访问[文档网站](https://docs.aituberkit.com/zh/)。
 
-[![今天成為AITuber開發者 | Nike-chan](https://github.com/tegnike/aituber-kit/assets/35606144/a958f505-72f9-4665-ab6c-b57b692bb166)](https://note.com/nike_cha_n/n/ne98acb25e00f)
+## Star历史
 
-## 開發環境
+[![Star History Chart](https://api.star-history.com/svg?repos=tegnike/aituber-kit&type=Date)](https://star-history.com/#tegnike/aituber-kit&Date)
 
-此項目在以下環境中開發：
+## 主要功能
+
+### 1. 与AI角色交互
+
+- 使用各种LLM的API密钥轻松与AI角色对话
+- 支持多模态，可识别摄像头画面和上传的图像生成回答
+- 保留最近的对话作为记忆
+
+### 2. AITuber直播
+
+- 获取YouTube直播评论，AI角色自动回应
+- 对话持续模式下即使没有评论也能自发发言
+- 以"#"开头的评论不会被读取的功能
+
+### 3. 其他功能
+
+- **外部集成模式**：通过WebSocket与服务器应用程序连接，实现更高级的功能
+- **幻灯片模式**：AI角色自动展示幻灯片的模式
+- **实时API**：使用OpenAI的Realtime API实现低延迟对话和函数执行
+- **音频模式**：利用OpenAI的Audio API功能实现自然语音对话
+- **消息接收功能**：通过专用API接受外部指令，让AI角色发言
+
+## 支持的模型和服务
+
+### 角色模型
+
+- **3D模型**：VRM文件
+- **2D模型**：Live2D文件（Cubism 3及以后版本）
+
+### 支持的LLM
+
+- OpenAI
+- Anthropic
+- Google Gemini
+- Azure OpenAI
+- Groq
+- Cohere
+- Mistral AI
+- Perplexity
+- Fireworks
+- 本地LLM
+- Dify
+
+### 支持的语音合成引擎
+
+- VOICEVOX
+- Koeiromap
+- Google Text-to-Speech
+- Style-Bert-VITS2
+- AivisSpeech
+- GSVI TTS
+- ElevenLabs
+- OpenAI
+- Azure OpenAI
+- Niji Voice
+
+## 快速开始
+
+### 开发环境
 
 - Node.js: ^20.0.0
-- npm: 10.8.1
+- npm: ^10.0.0
 
-## 共同準備
+### 安装步骤
 
-1. 將存儲庫克隆到本地。
+1. 将仓库克隆到本地。
 
 ```bash
 git clone https://github.com/tegnike/aituber-kit.git
 ```
 
-2. 打開文件夾。
+2. 打开文件夹。
 
 ```bash
 cd aituber-kit
 ```
 
-3. 安裝包。
+3. 安装包。
 
 ```bash
 npm install
 ```
 
-4. 以開發模式啟動應用程序。
+4. 在开发模式下启动应用程序。
 
 ```bash
 npm run dev
 ```
 
-5. 打開URL [http://localhost:3000](http://localhost:3000)
+5. 打开URL：[http://localhost:3000](http://localhost:3000)
 
-## 與AI角色對話
+6. 根据需要创建.env文件。
 
-- 這是與AI角色對話的功能。
-- 它是此存儲庫的基礎[pixiv/ChatVRM](https://github.com/pixiv/ChatVRM)的擴展功能。
-- 只要您有各種LLM的API密鑰，就可以相對輕鬆地嘗試。
-- 最近的對話句子作為記憶保留。
-- 它是多模態的，能夠識別來自攝像頭的圖像或上傳的圖像來生成回應。
+```bash
+cp .env.example .env
+```
 
-### 使用方法
+有关详细配置和使用说明，请访问[文档网站](https://docs.aituberkit.com/zh/)。
 
-1. 在設置屏幕中輸入各種LLM的API密鑰。
-   - OpenAI
-   - Anthropic
-   - Google Gemini
-   - Groq
-   - Local LLM（不需要API密鑰，但需要運行本地API服務器。）
-   - Dify Chatbot（不需要API密鑰，但需要運行本地API服務器。）
-2. 如有必要，編輯角色的設置提示。
-3. 如有需要，加載VRM文件和背景文件。
-4. 選擇語音合成引擎並根據需要配置語音設置。
-   - 對於VOICEVOX，您可以從多個選項中選擇發言者。需要事先運行VOICEVOX應用程序。
-   - 對於Koeiromap，您可以細微調整語音。需要API密鑰。
-   - 對於Google TTS，還可以選擇日語以外的語言。需要憑證信息。
-   - 對於Style-Bert-VITS2，需要運行本地API服務器。
-   - 對於GSVI TTS，需要運行本地API服務器。
-   - ElevenLabs支持多种语言选择。请输入API密钥。
-5. 從輸入表單開始與角色對話。也可以使用麥克風輸入。
+## ⚠️ 重要安全注意事项
 
-## AITuber直播
+本仓库适用于个人使用和本地环境开发，以及采取适当安全措施的商业用途。但是，在部署到Web环境时，请注意以下几点：
 
-- 可以檢索YouTube直播評論並讓角色發言。
-- 需要YouTube API密鑰。
-- 以「#」開頭的評論不會被讀取。
+- **API密钥处理**：系统设计为通过后端服务器调用AI服务（OpenAI、Anthropic等）和TTS服务的API，因此需要妥善管理API密钥。
 
-### 使用方法
+### 生产环境使用
 
-1. 在設置屏幕中打開YouTube模式。
-2. 輸入您的YouTube API密鑰和YouTube Live ID。
-3. 與"與AI角色對話"相同的方式配置其他設置。
-4. 開始在YouTube上直播並確認角色對評論的反應。
-5. 開啟会話継続模式，在沒有評論時，AI可以自動發言。
+在生产环境中使用时，我们建议采取以下方法之一：
 
-## 其他功能
+1. **后端服务器实现**：在服务器端管理API密钥，避免客户端直接访问API
+2. **向用户适当说明**：如果用户使用自己的API密钥，向他们解释安全注意事项
+3. **访问限制实现**：根据需要实施适当的身份验证和授权机制
 
-### 外部整合模式（β版本）
+## 赞助
 
-- 您可以通過WebSocket向服務器應用程序發送消息並獲得響應。
-- 與上述兩者不同，它不在前端應用程序中完成，因此難度略高。
-- ⚠ 此模式目前未完全維護，可能無法正常運行。
-
-#### 使用方法
-
-1. 啟動服務器應用程序並打開 `ws://127.0.0.1:8000/ws` 端點。
-2. 在設置屏幕中打開WebSocket模式。
-3. 與"與AI角色對話"相同的方式配置其他設置。
-4. 等待服務器應用程序的消息並確認角色的反應。
-
-#### 相關
-
-- 您可以嘗試我創建的服務器應用程序存儲庫。[tegnike/aituber-server](https://github.com/tegnike/aituber-server)
-- 請閱讀"[與美少女一起開發吧！！【Open Interpreter】](https://note.com/nike_cha_n/n/nabcfeb7aaf3f)"以獲得詳細設置。
-
-### 幻燈片模式
-
-- 這是AI角色自動展示幻燈片的模式。
-- 您需要提前準備幻燈片和腳本文件。
-
-#### 使用方法
-
-1. 進行到可以與AI角色互動的階段。
-2. 將幻燈片文件夾和腳本文件放在指定的文件夾中。
-3. 在設置屏幕中打開幻燈片模式。
-4. 按下開始幻燈片按鈕開始演示。
-
-## 小貼士
-
-### VRM模型和背景固定方法
-
-- 在 `public/AvatarSample_B.vrm` 更改VRM模型數據。請不要更改名稱。
-- 在 `public/bg-c.jpg` 更改背景圖片。請不要更改名稱。
-
-### 設置環境變量
-
-- 某些配置值可以從 `.env` 文件內容中參考。
-- 如果在設置屏幕中輸入，則該值優先。
-
-### 其他
-
-- 可以在設置屏幕中重置對話歷史。
-- 各種設置存儲在瀏覽器中。
-- 代码块中的元素不会被TTS读取。
-
-## 尋求贊助
-
-我們正在尋求贊助者以繼續我們的開發工作。<br>
-您的支持將極大地促進AITuber套件的開發和改進。
+我们正在寻求赞助者以继续开发。<br>
+您的支持将极大地促进AITuberKit的开发和改进。
 
 [![GitHub Sponsor](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=github)](https://github.com/sponsors/tegnike)
 
-### 我們的支持者（按支持順序排列）
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/fdanv1k6iz)
+
+### 贡献者（按支持顺序）
 
 <p>
   <a href="https://github.com/morioki3" title="morioki3">
@@ -220,12 +226,78 @@ npm run dev
   <a href="https://github.com/gijigae" title="gijigae">
     <img src="https://github.com/gijigae.png" width="40" height="40" alt="gijigae">
   </a>
+  <a href="https://github.com/takm-reason" title="takm-reason">
+    <img src="https://github.com/takm-reason.png" width="40" height="40" alt="takm-reason">
+  </a>
+  <a href="https://github.com/haoling" title="haoling">
+    <img src="https://github.com/haoling.png" width="40" height="40" alt="haoling">
+  </a>
+  <a href="https://github.com/FoundD-oka" title="FoundD-oka">
+    <img src="https://github.com/FoundD-oka.png" width="40" height="40" alt="FoundD-oka">
+  </a>
+  <a href="https://github.com/terisuke" title="terisuke">
+    <img src="https://github.com/terisuke.png" width="40" height="40" alt="terisuke">
+  </a>
+  <a href="https://github.com/konpeita" title="konpeita">
+    <img src="https://github.com/konpeita.png" width="40" height="40" alt="konpeita">
+  </a>
+  <a href="https://github.com/MojaX2" title="MojaX2">
+    <img src="https://github.com/MojaX2.png" width="40" height="40" alt="MojaX2">
+  </a>
+  <a href="https://github.com/micchi99" title="micchi99">
+    <img src="https://github.com/micchi99.png" width="40" height="40" alt="micchi99">
+  </a>
+  <a href="https://github.com/nekomeowww" title="nekomeowww">
+    <img src="https://github.com/nekomeowww.png" width="40" height="40" alt="nekomeowww">
+  </a>
+  <a href="https://github.com/yfuku" title="yfuku">
+    <img src="https://github.com/yfuku.png" width="40" height="40" alt="yfuku">
+  </a>
+  <a href="https://x.com/8484ff_42" title="8484ff_42">
+    <img src="https://pbs.twimg.com/profile_images/1869378029786656768/m_K1Cjqx_normal.jpg" width="40" height="40" alt="8484ff_42">
+  </a>
+  <a href="https://github.com/sher1ock-jp" title="sher1ock-jp">
+    <img src="https://github.com/sher1ock-jp.png" width="40" height="40" alt="sher1ock-jp">
+  </a>
+  <a href="https://github.com/uwaguchi" title="uwaguchi">
+    <img src="https://github.com/uwaguchi.png" width="40" height="40" alt="uwaguchi">
+  </a>
+  <a href="https://x.com/M1RA_A_Project" title="M1RA_A_Project">
+    <img src="https://pbs.twimg.com/profile_images/1903385253504507904/ceBSG9Wl_400x400.jpg" width="40" height="40" alt="M1RA_A_Project">
+  </a>
+  <a href="https://github.com/teruPP" title="teruPP">
+    <img src="https://github.com/teruPP.png" width="40" height="40" alt="teruPP">
+  </a>
 </p>
 
-以及多位匿名贊助者
+此外还有多位私人赞助者
 
-## 使用協議
+## 使用条款
 
-- 許可證遵循[pixiv/ChatVRM](https://github.com/pixiv/ChatVRM)，使用MIT許可證。
-- [商標使用協議](./logo_licence_zh.md)
-- [VRM模型使用協議](./vrm_licence_zh.md)
+### 许可证
+
+本项目从版本v2.0.0开始采用**自定义许可证**。
+
+- **免费使用**
+
+  - 非商业目的的个人使用、教育目的和非营利目的的使用可以免费使用。
+
+- **商业许可证**
+  - 商业用途需要获取单独的商业许可证。
+  - 详情请查看[关于许可证](./license_en.md)。
+
+### 其他
+
+- [标志使用条款](./logo_licence_zh.md)
+- [VRM和Live2D模型使用条款](./character_model_licence_zh.md)
+
+## 优先实施
+
+本项目接受付费优先实施功能。
+
+- 可以优先实施企业或个人要求的功能。
+- 实施的功能将作为本OSS项目的一部分发布。
+- 费用根据功能的复杂性和实施所需时间单独报价。
+- 这种优先实施与商业许可证是分开的。如果您想将实施的功能用于商业目的，需要单独获取商业许可证。
+
+详情请联系support@aituberkit.com。

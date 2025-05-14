@@ -16,14 +16,34 @@ import Slides from './slides'
 import Capture from './capture'
 import { multiModalAIServices } from '@/features/stores/settings'
 
+// モバイルデバイス検出用のカスタムフック
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // モバイルデバイス検出用の関数
+    const checkMobile = () => {
+      setIsMobile(
+        window.innerWidth <= 768 ||
+          /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      )
+    }
+
+    // 初回レンダリング時とウィンドウサイズ変更時に検出
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  return isMobile
+}
+
 export const Menu = () => {
   const selectAIService = settingsStore((s) => s.selectAIService)
   const youtubeMode = settingsStore((s) => s.youtubeMode)
   const youtubePlaying = settingsStore((s) => s.youtubePlaying)
-  const webSocketMode = settingsStore((s) => s.webSocketMode)
   const slideMode = settingsStore((s) => s.slideMode)
   const slideVisible = menuStore((s) => s.slideVisible)
-  const chatLog = homeStore((s) => s.chatLog)
   const assistantMessage = homeStore((s) => s.assistantMessage)
   const showWebcam = menuStore((s) => s.showWebcam)
   const showControlPanel = settingsStore((s) => s.showControlPanel)
@@ -36,10 +56,35 @@ export const Menu = () => {
   const [showPermissionModal, setShowPermissionModal] = useState(false)
   const imageFileInputRef = useRef<HTMLInputElement>(null)
 
+  // ロングタップ用のステート
+  const [touchStartTime, setTouchStartTime] = useState<number | null>(null)
+  const [touchEndTime, setTouchEndTime] = useState<number | null>(null)
+
+  // モバイルデバイス検出
+  const isMobile = useIsMobile()
+
   const selectedSlideDocs = slideStore((state) => state.selectedSlideDocs)
   const { t } = useTranslation()
 
   const [markdownContent, setMarkdownContent] = useState('')
+
+  // ロングタップ処理用の関数
+  const handleTouchStart = () => {
+    setTouchStartTime(Date.now())
+  }
+
+  const handleTouchEnd = () => {
+    setTouchEndTime(Date.now())
+    if (touchStartTime && Date.now() - touchStartTime >= 800) {
+      // 800ms以上押し続けるとロングタップと判定
+      setShowSettings(true)
+    }
+    setTouchStartTime(null)
+  }
+
+  const handleTouchCancel = () => {
+    setTouchStartTime(null)
+  }
 
   useEffect(() => {
     if (!selectedSlideDocs) return
@@ -101,6 +146,8 @@ export const Menu = () => {
         })
         .catch(() => {
           setShowPermissionModal(true)
+          homeStore.setState({ webcamStatus: false })
+          menuStore.setState({ showWebcam: false })
         })
     }
   }, [showWebcam])
@@ -123,18 +170,36 @@ export const Menu = () => {
   const toggleCapture = useCallback(() => {
     menuStore.setState(({ showCapture }) => ({ showCapture: !showCapture }))
     menuStore.setState({ showWebcam: false }) // Captureを表示するときWebcamを非表示にする
-  }, [])
+    if (!showCapture) {
+      homeStore.setState({ webcamStatus: false }) // Ensure webcam status is false when enabling capture
+    }
+  }, [showCapture])
 
   const toggleWebcam = useCallback(() => {
     menuStore.setState(({ showWebcam }) => ({ showWebcam: !showWebcam }))
     menuStore.setState({ showCapture: false }) // Webcamを表示するときCaptureを非表示にする
-  }, [])
+    if (!showWebcam) {
+      homeStore.setState({ captureStatus: false }) // Ensure capture status is false when enabling webcam
+    }
+  }, [showWebcam])
 
   return (
     <>
-      <div className="absolute z-15 m-24">
+      {/* ロングタップ用の透明な領域（モバイルでコントロールパネルが非表示の場合） */}
+      {isMobile && !showControlPanel && (
         <div
-          className="grid md:grid-flow-col gap-[8px] mb-40"
+          className="absolute top-0 left-0 z-30 w-20 h-20"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchCancel}
+        >
+          <div className="w-full h-full opacity-0"></div>
+        </div>
+      )}
+
+      <div className="absolute z-15 m-6">
+        <div
+          className="grid md:grid-flow-col gap-[8px] mb-10"
           style={{ width: 'max-content' }}
         >
           {showControlPanel && (
@@ -159,7 +224,7 @@ export const Menu = () => {
                     iconName="24/CommentFill"
                     label={t('ChatLog')}
                     isProcessing={false}
-                    disabled={chatLog.length <= 0}
+                    disabled={false}
                     onClick={() => setShowChatLog(true)}
                   />
                 )}
@@ -171,7 +236,7 @@ export const Menu = () => {
                   <>
                     <div className="order-3">
                       <IconButton
-                        iconName="24/ShareIos"
+                        iconName="screen-share"
                         isProcessing={false}
                         onClick={toggleCapture}
                       />
@@ -241,7 +306,7 @@ export const Menu = () => {
       <div className="relative">
         {slideMode && slideVisible && <Slides markdown={markdownContent} />}
       </div>
-      {webSocketMode ? showChatLog && <ChatLog /> : showChatLog && <ChatLog />}
+      {showChatLog && <ChatLog />}
       {showSettings && <Settings onClickClose={() => setShowSettings(false)} />}
       {!showChatLog &&
         assistantMessage &&

@@ -1,42 +1,8 @@
 import { Message } from '@/features/messages/messages'
 import { getVercelAIChatResponse } from '@/features/chat/vercelAIChat'
-import settingsStore, {
-  multiModalAIServiceKey,
-  multiModalAIServices,
-} from '@/features/stores/settings'
-
-const getAIConfig = () => {
-  const ss = settingsStore.getState()
-  const aiService = ss.selectAIService as multiModalAIServiceKey
-
-  if (!multiModalAIServices.includes(aiService)) {
-    throw new Error('Invalid AI service')
-  }
-
-  const apiKeyName = `${aiService}Key` as const
-  const apiKey = ss[apiKeyName]
-
-  if (!apiKey) {
-    throw new Error(
-      `API key for ${aiService} is missing. Unable to proceed with the AI service.`
-    )
-  }
-
-  return {
-    aiApiKey: apiKey,
-    selectAIService: aiService,
-    selectAIModel: ss.selectAIModel,
-  }
-}
 
 const fetchAIResponse = async (queryMessages: any[]): Promise<any> => {
-  const { aiApiKey, selectAIService, selectAIModel } = getAIConfig()
-  return await getVercelAIChatResponse(
-    queryMessages,
-    aiApiKey,
-    selectAIService,
-    selectAIModel
-  )
+  return getVercelAIChatResponse(queryMessages)
 }
 
 /**
@@ -94,10 +60,11 @@ const getLastMessages = (
         returnMessages.push({ role: lastRole, content: combinedContent })
       }
       lastRole = message.role
-      combinedContent =
-        typeof message.content === 'string'
+      combinedContent = message.content
+        ? typeof message.content === 'string'
           ? message.content
           : message.content[0].text
+        : ''
     }
 
     // 最後のメッセージの場合、現在の内容を追加
@@ -268,7 +235,7 @@ export const checkIfResponseContinuationIsRequired = async (
   }
 
   const systemMessage = `与えられた会話文の文脈から、次にどの話者が発言すべきかを判断してください。
-最後��話者が話を続けるべきならば "true" を、逆に交代が必要な場合は "false" を返します。
+最後の話者が話を続けるべきならば "true" を、逆に交代が必要な場合は "false" を返します。
 回答はJSON形式で、answerとreasonの2つのキーを持つオブジェクトとしてください。
 
 ## 例

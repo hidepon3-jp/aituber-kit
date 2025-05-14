@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import Image from 'next/image'
 
 import homeStore from '@/features/stores/home'
 import menuStore from '@/features/stores/menu'
@@ -11,7 +12,7 @@ const YouTube = () => {
   const youtubeApiKey = settingsStore((s) => s.youtubeApiKey)
   const youtubeMode = settingsStore((s) => s.youtubeMode)
   const youtubeLiveId = settingsStore((s) => s.youtubeLiveId)
-  const webSocketMode = settingsStore((s) => s.webSocketMode)
+  const externalLinkageMode = settingsStore((s) => s.externalLinkageMode)
   const selectAIService = settingsStore((s) => s.selectAIService)
 
   const conversationContinuityMode = settingsStore(
@@ -35,9 +36,19 @@ const YouTube = () => {
   }
 
   return (
-    <div className="my-40">
-      <div className="my-16 typography-20 font-bold">{t('YoutubeMode')}</div>
-      <div className="my-8">
+    <>
+      <div className="flex items-center mb-6">
+        <Image
+          src="/images/setting-icons/youtube-settings.svg"
+          alt="YouTube Settings"
+          width={24}
+          height={24}
+          className="mr-2"
+        />
+        <h2 className="text-2xl font-bold">{t('YoutubeSettings')}</h2>
+      </div>
+      <div className="mb-4 text-xl font-bold">{t('YoutubeMode')}</div>
+      <div className="my-2">
         {youtubeMode ? (
           <TextButton onClick={() => handleChangeYoutubeMode(false)}>
             {t('StatusOn')}
@@ -48,17 +59,17 @@ const YouTube = () => {
           </TextButton>
         )}
       </div>
-      <div className="my-16">
+      <div className="mt-4">
         {(() => {
           if (youtubeMode) {
             return (
               <>
                 <div className="">{t('YoutubeInfo')}</div>
-                <div className="my-16 typography-20 font-bold">
+                <div className="my-4 text-xl font-bold">
                   {t('YoutubeAPIKey')}
                 </div>
                 <input
-                  className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
+                  className="text-ellipsis px-4 py-2 w-col-span-2 bg-white hover:bg-white-hover rounded-lg"
                   type="text"
                   placeholder="..."
                   value={youtubeApiKey}
@@ -68,11 +79,11 @@ const YouTube = () => {
                     })
                   }
                 />
-                <div className="my-16 typography-20 font-bold">
+                <div className="my-4 text-xl font-bold">
                   {t('YoutubeLiveID')}
                 </div>
                 <input
-                  className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
+                  className="text-ellipsis px-4 py-2 w-col-span-2 bg-white hover:bg-white-hover rounded-lg"
                   type="text"
                   placeholder="..."
                   value={youtubeLiveId}
@@ -82,17 +93,17 @@ const YouTube = () => {
                     })
                   }
                 />
-                <div className="my-24">
-                  <div className="my-16 typography-20 font-bold">
+                <div className="mt-6">
+                  <div className="my-4 text-xl font-bold">
                     {t('ConversationContinuityMode')}
                   </div>
-                  <div className="my-8">
+                  <div className="my-2">
                     {t('ConversationContinuityModeInfo')}
                   </div>
-                  <div className="my-8">
+                  <div className="my-2">
                     {t('ConversationContinuityModeInfo2')}
                   </div>
-                  <div className="mb-16">
+                  <div className="mb-4">
                     {t('ConversationContinuityModeInfo3')}
                   </div>
                   <TextButton
@@ -104,7 +115,7 @@ const YouTube = () => {
                     disabled={
                       !multiModalAIServices.includes(selectAIService as any) ||
                       slideMode ||
-                      webSocketMode
+                      externalLinkageMode
                     }
                   >
                     {t(conversationContinuityMode ? 'StatusOn' : 'StatusOff')}
@@ -115,7 +126,7 @@ const YouTube = () => {
           }
         })()}
       </div>
-    </div>
+    </>
   )
 }
 export default YouTube

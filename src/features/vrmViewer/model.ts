@@ -1,11 +1,16 @@
 import * as THREE from 'three'
-import { VRM, VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import {
+  VRM,
+  VRMExpressionPresetName,
+  VRMLoaderPlugin,
+  VRMUtils,
+} from '@pixiv/three-vrm'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { VRMAnimation } from '../../lib/VRMAnimation/VRMAnimation'
 import { VRMLookAtSmootherLoaderPlugin } from '@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin'
 import { LipSync } from '../lipSync/lipSync'
 import { EmoteController } from '../emoteController/emoteController'
-import { Screenplay } from '../messages/messages'
+import { Talk } from '../messages/messages'
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -20,7 +25,7 @@ export class Model {
 
   constructor(lookAtTargetParent: THREE.Object3D) {
     this._lookAtTargetParent = lookAtTargetParent
-    this._lipSync = new LipSync(new AudioContext())
+    this._lipSync = new LipSync(new AudioContext(), { forceStart: true })
   }
 
   public async loadVRM(url: string): Promise<void> {
@@ -69,13 +74,35 @@ export class Model {
   /**
    * 音声を再生し、リップシンクを行う
    */
-  public async speak(buffer: ArrayBuffer, screenplay: Screenplay) {
-    this.emoteController?.playEmotion(screenplay.expression)
+  public async speak(
+    buffer: ArrayBuffer,
+    talk: Talk,
+    isNeedDecode: boolean = true
+  ) {
+    this.emoteController?.playEmotion(talk.emotion)
     await new Promise((resolve) => {
-      this._lipSync?.playFromArrayBuffer(buffer, () => {
-        resolve(true)
-      })
+      this._lipSync?.playFromArrayBuffer(
+        buffer,
+        () => {
+          resolve(true)
+        },
+        isNeedDecode
+      )
     })
+  }
+
+  /**
+   * 現在の音声再生を停止
+   */
+  public stopSpeaking() {
+    this._lipSync?.stopCurrentPlayback()
+  }
+
+  /**
+   * 感情表現を再生する
+   */
+  public async playEmotion(preset: VRMExpressionPresetName) {
+    this.emoteController?.playEmotion(preset)
   }
 
   public update(delta: number): void {
